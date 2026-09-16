@@ -2,8 +2,8 @@ En este repositorio se encontrarán distintas tareas prácticas de **Visión por
 de Anaconda, Python y la librería OpenCV.
 
 ### 👥 Participantes de este repositorio:
-- [Enrique](https://github.com/Enric1005)
-- [Vidal](https://github.com/t3ntox)
+- [Enrique Sosa Ojeda](https://github.com/Enric1005)
+- [Vidal de León Giménez](https://github.com/t3ntox)
 
 ------
 

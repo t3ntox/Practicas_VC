@@ -10,7 +10,7 @@ de Anaconda, Python y la librería OpenCV.
 ### [PRÁCTICA 1](https://github.com/t3ntox/Practicas_VC/tree/main/P1)
 
 En esta primera práctica se encontrará 4 tareas distintas, todas ellas desarrolladas dentro de un mismo cuaderno Jupyter.
-Además del cuaderno Jupyter, encontrarán en la carpeta destinada a esta práctica dos imágenes, que corresponden a dos de los mondrian generados
+Además, del cuaderno Jupyter, encontrarán en la carpeta destinada a esta práctica dos imágenes, que corresponden a dos de los mondrian generados
 con código en una de las tareas.
 
 Para la realización de dichas tareas, hemos hecho uso de herramientas IA cuyas conversaciones se encuentran adjuntas en el cuaderno y de la guía aportada para la P1 en el repositorio de la [asignatura](https://github.com/otsedom/otsedom.github.io/tree/main/VC).

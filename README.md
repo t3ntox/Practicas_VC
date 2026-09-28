@@ -36,5 +36,6 @@ Estructura de la carpeta
 P2
 |- face_detection_yunet_2023mar.onnx        #Modelo de dectección de rostro
 |- mandril.jpg                              #Imagen base para la realización de las tareas
+|- README.md                                
 |- tareas_p2.ipynb                          #Cuaderno jupyter con tareas desarrolladas
 ```

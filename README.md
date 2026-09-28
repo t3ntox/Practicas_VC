@@ -22,3 +22,19 @@ P1
 |- imagen1.jpg           #Ejemplo de mondrian 2
 |- tareas_p1.ipynb       #Cuaderno jupyter con tareas desarrolladas
 ```
+
+
+### [PRÁCTICA 2](https://github.com/t3ntox/Practicas_VC/tree/main/P2)
+
+En esta segunda práctica se encontrará 3 tareas distintas, todas ellas desarrolladas dentro de un mismo cuaderno Jupyter.
+Además, del cuaderno Jupyter, encontrarán en la carpeta destinada a esta práctica una imágen, que corresponde a la imagen utilizada para realizar distintos tratamientos de imagen distintos, y un archivo que corresponde al modelo usado en la última tarea para la detección de rostros.
+
+Para la realización de dichas tareas, se incluye en la carpeta de esta práctica un README donde se desarrolla el proceso de realización de cada tarea.
+
+Estructura de la carpeta
+```
+P2
+|- face_detection_yunet_2023mar.onnx        #Modelo de dectección de rostro
+|- mandril.jpg                              #Imagen base para la realización de las tareas
+|- tareas_p2.ipynb                          #Cuaderno jupyter con tareas desarrolladas
+```

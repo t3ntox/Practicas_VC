@@ -2,6 +2,12 @@
 
 Este repositorio contiene el cuaderno `tareas_p2.ipynb`, con tres ejercicios sobre detección de bordes (Canny y Sobel) y una aplicación de detección de rostros en tiempo real con YuNet.
 
+### 👥 Autores:
+- [Enrique Sosa Ojeda](https://github.com/Enric1005)
+- [Vidal de León Giménez](https://github.com/t3ntox)
+
+------
+
 ## Archivos necesarios
 
 - `mandril.jpg` — imagen utilizada en los tres ejercicios.
@@ -17,6 +23,11 @@ Para expresarlo como porcentaje, se normaliza dividiendo entre `255 * canny.shap
 
 Se calcula el valor máximo (`umbral = max(fil_counts) * 0.9`) y se seleccionan con `np.where(...)` las filas cuyo conteo lo supera. Estas filas se marcan sobre la imagen de Canny con `plt.axhline()`, una línea horizontal roja por cada fila destacada. En paralelo, se muestra una gráfica de líneas con el porcentaje de píxeles blancos por fila, para visualizar la distribución completa.
 
+### Resultados
+
+![Resultado Tarea 1](Resultado_Tarea_1.png)
+
+
 ## Tarea 2 — Umbralizado de Sobel y comparación con Canny
 
 Una vez ya se conocen los resultados obtenidos con canny, en esta tarea se busca comparar dichos resultado con los que daría otro método de detección de bordes, en este caso el llamado Sobel.
@@ -31,7 +42,12 @@ Tras obtener la imagen resultante, se aplica la misma lógica de `cv2.reduce()` 
 
 Con todos los resultados requeridos, se muestran ambas imágenes en subplots (`plt.subplot(1,2,...)`), Canny con líneas verdes (`axhline`/`axvline`) y Sobel umbralizado con líneas rojas, permitiendo comparar visualmente qué filas y columnas destaca cada método.
 
-## Tarea 3 — Anonimización de rostros en tiempo real con YuNet
+### Resultados
+
+![Resultado Tarea 2](Resultado_Tarea_2.png)
+
+
+## Ampliación — Anonimización de rostros en tiempo real con YuNet
 
 Por último, a partir del vídeo **My little privacy** se decidió realizar un detector de rostros que, al rostro detectado superpone una imagen manteniendo la privacidad de las personas que aparecen en cámara. Para ello, investigamos con ayuda de Claude los distintos métodos de detección de rostro que proporciona OpenCV y el método seleccionado fue el uso del modelo preentrenado YuNet.
 
@@ -52,3 +68,7 @@ detector = cv2.FaceDetectorYN.create(
 3. Por cada rostro detectado, se extraen las coordenadas del bounding box (`face[0:4]`) y se recortan (clip) a los límites del frame con `max(0, x)` y `min(w, img_w - x)`, evitando errores de slicing cuando el rostro está cerca del borde de la imagen.
 4. La imagen `mandril.jpg` se redimensiona al tamaño exacto del bounding box con `cv2.resize(..., interpolation=cv2.INTER_AREA)` y se copia sobre esa región del frame (`frame[y:y+h, x:x+w] = overlay_resized`), ocultando el rostro original.
 5. El resultado se muestra en una ventana con `cv2.imshow()`, y el bucle termina al pulsar `Esc` (`cv2.waitKey(20) == 27`), liberando la cámara y cerrando las ventanas al finalizar.
+
+### Resultados
+
+![Resultado Ampliación](Resultado_Ampliacion.gif)

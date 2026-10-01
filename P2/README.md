@@ -71,4 +71,4 @@ detector = cv2.FaceDetectorYN.create(
 
 ### Resultados
 
-![Resultado Ampliación](Resultado_Ampliacion.gif)
+![Resultado Ampliación](Resultado_Ampliación.gif)

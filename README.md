@@ -37,7 +37,10 @@ P2
 |- face_detection_yunet_2023mar.onnx        #Modelo de dectección de rostro
 |- mandril.jpg                              #Imagen base para la realización de las tareas
 |- README.md
+|- Resultado_ampliacion_Tarea_2.gif         
 |- Resultado_Ampliación.gif                 #Demostración del resultado de detección de rostros con YuNet
+|- Resultado_escenario_1.png
+|- Resultado_escenario_2.png
 |- Resultado_Tarea_1.png
 |- Resultado_Tarea_2.png
 |- tareas_p2.ipynb                          #Cuaderno jupyter con tareas desarrolladas

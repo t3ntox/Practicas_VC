@@ -46,6 +46,34 @@ Con todos los resultados requeridos, se muestran ambas imágenes en subplots (`p
 
 ![Resultado Tarea 2](Resultado_Tarea_2.png)
 
+## Tarea 3 — Demostradores de visión en tiempo real: movimiento, color de piel y rostros
+ 
+La tarea se compone de una función común y dos demostradores independientes construidos sobre ella, ambos basados en detección de movimiento sobre color de piel: uno con efecto de burbujas, inspirado en *Messa di voce*, y otro con efecto de estela.
+ 
+### Función común: `mascara_mov_piel(frame, pframe, kernel)`
+ 
+Usada por los dos primeros demostradores, combina detección de color de piel y detección de movimiento para aislar únicamente la piel que se está moviendo en cada frame:
+ 
+1. **Máscara de color de piel**: convierte el frame a espacio **YCrCb** (`cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)`) y aplica `cv2.inRange(ycrcb, (0, 133, 77), (255, 173, 127))`, un rango fijo sobre los canales Cr/Cb característico de tonos de piel. El canal Y (luminancia) se deja sin restringir (`0-255`) para que la máscara sea más robusta ante cambios de iluminación.
+2. **Limpieza morfológica de la máscara de piel**: `cv2.morphologyEx(..., cv2.MORPH_OPEN, kernel)` elimina ruido puntual (píxeles sueltos mal clasificados como piel), y `cv2.MORPH_CLOSE` rellena pequeños huecos dentro de las regiones de piel detectadas.
+3. **Máscara de movimiento**: se calcula la diferencia absoluta entre el frame actual y el anterior, ambos convertidos a gris (`cv2.absdiff` + `cv2.cvtColor(..., COLOR_BGR2GRAY)`), y se umbraliza con `cv2.threshold(dif, 80, 255, cv2.THRESH_BINARY)`.
+4. **Combinación**: `cv2.bitwise_and(mov, mask)` se queda solo con los píxeles que son a la vez "movimiento" y "piel", descartando movimiento de objetos sin color de piel y piel estática. El resultado se dilata (`cv2.dilate(..., iterations=2)`) para compactar la región detectada.
+
+### Demostrador 1 — Burbujas sobre movimiento de piel (inspirado en *Messa di voce*)
+1. Por cada frame, se obtiene `mov_piel` con la función anterior y se extraen las coordenadas de los píxeles activos con `np.nonzero(mov_piel)`.
+2. El número de burbujas nuevas por frame se calcula proporcional al tamaño de la zona detectada: `n = min(4, len(xs) // 150)`, limitando a un máximo de 4 por frame y a `MAX_BURBUJAS = 50` burbujas vivas simultáneas.
+3. Cada burbuja nueva (`nueva_burbuja()`) nace en una posición aleatoria dentro de la zona detectada (`random.sample` sobre los índices de píxeles activos) y se le asignan propiedades aleatorias: radio, velocidad vertical (inversamente proporcional al radio, para que las burbujas pequeñas suban más rápido), fase y amplitud de oscilación horizontal, y vida útil en frames.
+4. En cada iteración, `actualizar_y_dibujar()` actualiza la posición de todas las burbujas vivas (ascienden en Y, oscilan en X mediante una función seno sobre su fase) y descarta las que ya cumplieron su vida útil o salieron de la imagen por arriba.
+5. Las burbujas se dibujan como círculos rellenos (`cv2.circle`) sobre una copia del frame, que luego se mezcla con el frame original mediante `cv2.addWeighted(relleno, 0.3, img, 0.7, 0, img)` para lograr un efecto translúcido en vez de burbujas sólidas.
+6. Pulsar `c` vacía la lista de burbujas (`burbujas[:] = []`), reiniciando el efecto visual.
+
+### Demostrador 2 — Estela de movimiento de piel 
+1. Se mantiene una imagen acumuladora `acum` (float32, mismo tamaño que la máscara) que registra la "intensidad" de movimiento reciente en cada píxel, inicializada a ceros en el primer frame.
+2. En cada iteración: `acum *= DECAY` (con `DECAY = 0.90`) atenúa gradualmente la estela existente, y `acum = np.maximum(acum, mov_piel)` incorpora el movimiento del frame actual a máxima intensidad allí donde se detecta. Esta combinación de decaimiento exponencial + máximo es lo que genera el efecto de rastro que se desvanece con el tiempo.
+3. La intensidad acumulada se convierte a 8 bits y se colorea con un mapa de color (`cv2.applyColorMap(intensidad, cv2.COLORMAP_COOL)`), dando a la estela una gama de colores fríos.
+4. Solo se pintan sobre el frame los píxeles cuya intensidad supera `UMBRAL_VISIBLE = 12` (máscara booleana `visible`), mezclando el color de la estela con el frame original mediante `cv2.addWeighted` con `OPACIDAD = 0.75`.
+5. Pulsar `c` reinicia la estela a cero (`acum[:] = 0`).
+
 
 ## Ampliación — Anonimización de rostros en tiempo real con YuNet
 

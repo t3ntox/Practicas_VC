@@ -70,6 +70,8 @@ Como ampliación, se aplican los dos métodos de detección de bordes sobre el v
 
 A partir de los vídeos [My little piece of privacy](https://www.niklasroy.com/project/88/my-little-piece-of-privacy), [Messa di voce](https://youtu.be/GfoqiyB1ndE?feature=shared) y [Virtual air guitar](https://youtu.be/FIAmyoEpV5c?feature=shared), se propone reinterpretar la parte de procesamiento de la imagen. La tarea se compone de una función común y dos demostradores independientes construidos sobre ella, ambos basados en detección de movimiento sobre color de piel: uno con efecto de burbujas, inspirado en *Messa di voce*, y otro con efecto de estela. En ambos, pulsar `c` reinicia el efecto visual remanente.
 
+Para el desarrollo del código de esta tarea, nos hemos ayudado de Claude, un modelo de IA, y de documentación sobre la librería OpenCV. Todo esto, con el fin de conocer formas óptimas para la detección del color piel y funciones nativas de la librería que pudiesen facilitar el trabajo.
+
 ### Función común: `mascara_mov_piel(frame, pframe, kernel)`
 
 Usada por los dos demostradores (hay que ejecutar antes su bloque de código, que incluye también los imports), combina detección de color de piel y detección de movimiento para aislar únicamente la piel que se está moviendo en cada frame:

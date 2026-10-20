@@ -10,10 +10,11 @@ Este repositorio contiene el cuaderno `tareas_p3.ipynb`, con dos tareas: determi
 
 ## Archivos necesarios
 
-- `Monedas2.jpg` — imagen ideal con monedas sobre fondo uniforme, utilizada en la tarea previa de la Tarea 1.
-- `FRA.png` — imagen ideal para extraer características de los plásticos de tipo FRA.
-- `PEL.png` — imagen ideal para extraer características de los plásticos de tipo PEL.
-- `TAR.png` — imagen ideal para extraer características de los plásticos de tipo TAR.
+- `[Monedas.jpg, Monedas1.jpg, Monedas2.jpg]` — imagenes ideales con monedas sobre fondo uniforme, utilizadas en la tarea previa de la Tarea 1.
+- `[fragment-03-olympus-10-01-2020.jpg, FRA.png]` — imagenes ideales para extraer características de los plásticos de tipo FRA.
+- `[pellet-03-olympus-10-01-2020.jpg, PEL.png]` — imagenes ideales para extraer características de los plásticos de tipo PEL.
+- `[tar-03-olympus-10-01-2020.jpg, TAR.png]` — imagenes ideales para extraer características de los plásticos de tipo TAR.
+- `MPs_test_bbs.csv` - cvs con las distintas bounding boxes anotadas con su respectivo label real para la imagen de test
 - `MPs_test.png` — imagen para comprobar el funcionamiento del clasificador de plásticos.
 
 

@@ -10,10 +10,11 @@ Este repositorio contiene el cuaderno `tareas_p3.ipynb`, con dos tareas: determi
 
 ## Archivos necesarios
 
-- `Monedas2.jpg` — imagen ideal con monedas sobre fondo uniforme, utilizada en la tarea previa de la Tarea 1.
-- `FRA.png` — imagen ideal para extraer características de los plásticos de tipo FRA.
-- `PEL.png` — imagen ideal para extraer características de los plásticos de tipo PEL.
-- `TAR.png` — imagen ideal para extraer características de los plásticos de tipo TAR.
+- `[Monedas.jpg, Monedas1.jpg, Monedas2.jpg]` — imagenes ideales con monedas sobre fondo uniforme, utilizadas en la tarea previa de la Tarea 1.
+- `[fragment-03-olympus-10-01-2020.jpg, FRA.png]` — imagenes ideales para extraer características de los plásticos de tipo FRA.
+- `[pellet-03-olympus-10-01-2020.jpg, PEL.png]` — imagenes ideales para extraer características de los plásticos de tipo PEL.
+- `[tar-03-olympus-10-01-2020.jpg, TAR.png]` — imagenes ideales para extraer características de los plásticos de tipo TAR.
+- `MPs_test_bbs.csv` - cvs con las distintas bounding boxes anotadas con su respectivo label real para la imagen de test
 - `MPs_test.png` — imagen para comprobar el funcionamiento del clasificador de plásticos.
 
 
@@ -100,12 +101,12 @@ Para el entrenamiento se dispone de seis imágenes individuales (dos por cada cl
 
 Debido a irregularidades en la iluminación, tamaños y sombras proyectadas, no es posible aplicar un umbral global simple. Por ello, la segmentación se compone en las siguientes etapas:
 
-1. **Estimación del fondo local (`local_background(lab)`):** la imagen se convierte al espacio de color **CIE Lab**. Cada canal se reduce de escala por un factor de 8 (`cv2.resize` con `INTER_AREA`), se le aplica un filtro de mediana grande (`cv2.medianBlur(..., 59)`) que elimina las partículas al ser elementos locales pequeños, y se vuelve a ampliar a resolución original con interpolación bilineal. Esto permite capturar el gradiente de iluminación del soporte de manera limpia.
+1. **Estimación del fondo local (`local_background(lab)`):** la imagen se convierte al espacio de color **Lab**. Cada canal se reduce de escala por un factor de 8 (`BG_SCALE`), se le aplica un filtro de mediana grande que elimina las partículas al ser elementos locales pequeños, y se vuelve a ampliar a resolución original con interpolación bilineal.
 2. **Distancia adaptativa al fondo (`segment_particles(img_bgr)`):** tras suavizar la imagen con `cv2.GaussianBlur((3, 3), 0)`, se mide la diferencia canal a canal respecto al fondo estimado:
    $$\text{dist} = \sqrt{0.6 \cdot (\Delta L)^2 + (\Delta a)^2 + (\Delta b)^2}$$
    Ponderar el canal $L$ con $0.6$ reduce falsos positivos provocados por sombras arrojadas alrededor de las partículas.
-3. **Umbralizado binarizado:** la distancia se normaliza a 8 bits [0, 255] con `cv2.normalize` y se calcula el umbral de Otsu (`cv2.THRESH_OTSU`). Para asegurar que partículas transparentes o de baja reflectancia no queden cortadas, se umbraliza al 70 % del valor obtenido (`otsu_val * 0.7`).
-4. **Limpieza morfológica y relleno:** se aplica una apertura con un elemento estructurante elíptico de $5 \times 5$ (`cv2.MORPH_OPEN`) para eliminar píxeles aislados de ruido, seguida de una clausura de 2 iteraciones (`cv2.MORPH_CLOSE`) para cerrar microporos internos. Los contornos detectados con `cv2.findContours` se rellenan completamente (`cv2.drawContours(..., thickness=cv2.FILLED)`).
+3. **Umbralizado binarizado:** la distancia se normaliza a 8 bits [0, 255] con `cv2.normalize` y se calcula el umbral de Otsu (`cv2.THRESH_OTSU`). Para asegurar que partículas transparentes o de baja reflectancia no queden cortadas, se umbraliza al 70 % del valor obtenido ya que experimentalmente, en este caso, ofrece un mejor resultado final.
+4. **Limpieza morfológica y relleno:** se aplica una apertura con un kernel de forma elíptica de $5 \times 5$ (`cv2.MORPH_OPEN`) para eliminar píxeles aislados de ruido, seguida de una clausura de 2 iteraciones (`cv2.MORPH_CLOSE`) para cerrar y suavizar contornos. Dichos contornos detectados se rellenan completamente (`cv2.drawContours(..., thickness=cv2.FILLED)`).
 5. **Extracción de regiones (`extract_regions(mask)`):** se identifican los contornos individuales externos y se filtran por área mínima y máxima, extrayendo para cada uno su contorno y su bounding box $(x_1, y_1, x_2, y_2)$.
 
 ### Extracción de características
@@ -113,20 +114,20 @@ Debido a irregularidades en la iluminación, tamaños y sombras proyectadas, no 
 Por cada partícula segmentada se extraen **17 características descriptivas** (10 geométricas y 7 cromáticas):
 
 #### 1. Características geométricas (`geometric_features`)
-Capturan la morfología y regularidad espacial de las partículas:
+Capturan la morfología de las partículas:
 - **Aspect ratio:** relación entre el eje mayor y menor del rectángulo rotado de área mínima (`cv2.minAreaRect`). Los pellets tienden a valores cercanos a 1, mientras que los fragmentos presentan relaciones mayores.
 - **Excentricidad:** obtenida a partir de los momentos centrales de segundo orden ($\mu_{20}, \mu_{02}, \mu_{11}$). Describe qué tan achatada o alargada es la forma.
 - **Solidez:** cociente entre el área del contorno y el área de su envolvente convexa (`cv2.convexHull`). Penaliza bordes dentados y entrantes acusados, siendo muy elevada en pellets y notablemente menor en fragmentos.
-- **Extensión (*extent*):** relación entre el área de la partícula y el área de su bounding box alineado con los ejes (`cv2.boundingRect`).
-- **Circularidad:** compacidad normalizada calculada como $4 \pi \cdot \text{área} / \text{perímetro}^2$.
+- **Extensión:** relación entre el área de la partícula y el área de su bounding box alineado con los ejes (`cv2.boundingRect`).
+- **Circularidad:** calculada como $4 \pi \cdot \text{área} / \text{perímetro}^2$.
 - **Ratio de elipse:** proporción entre semiejes ajustando una elipse por mínimos cuadrados con `cv2.fitEllipse`.
-- **Momentos de Hu (`hu_0` a `hu_3`):** los cuatro primeros momentos invariantes a traslación, escala y rotación de `cv2.HuMoments`, transformados logarítmicamente ($-\text{sign}(hu) \cdot \log_{10}(|hu| + 10^{-30})$) para trabajar en rangos numéricos estables.
+- **Momentos de Hu (`hu_0` a `hu_3`):** los cuatro primeros momentos invariantes a traslación, escala y rotación de `cv2.HuMoments`.
 
 #### 2. Características cromáticas relativas (`color_features`)
 Puesto que las tomas fotográficas difieren en exposición y balance de blancos, las métricas de color se calculan en el espacio **Lab** y **relativas al fondo medio de la propia imagen** (`estimate_background_lab`):
 - **Diferencia media de color ($\Delta L, \Delta a, \Delta b$):** resta entre la media cromática de la partícula y la del fondo. El alquitrán (TAR) se caracteriza por un contraste de luminosidad marcadamente negativo ($\approx -98$), mientras que PEL y FRA muestran valores sustancialmente más moderados.
 - **Ratio de brillo:** cociente entre la luminosidad media de la partícula y la del fondo ($\mu_L / \mu_{L,\text{bg}}$).
-- **Desviación estándar ($\sigma_L, \sigma_a, \sigma_b$):** dispersión interna de color y luminosidad de los píxeles de la partícula, muy representativa de texturas rugosas o reflejos superficiales.
+- **Desviación estándar ($\sigma_L, \sigma_a, \sigma_b$):** dispersión interna de color y luminosidad de los píxeles de la partícula, representativa de texturas rugosas o reflejos superficiales.
 
 ### Clasificador basado en prototipos
 
@@ -134,18 +135,18 @@ En lugar de requerir entrenamiento iterativo o parámetros opacos, se diseña un
 
 1. **Balanceo de clases (`balance_classes`):** para evitar que imágenes con un número desproporcionado de partículas dominen el modelo, se submuestrea aleatoriamente cada clase hasta un máximo de `150` regiones.
 2. **Cálculo de centroides y dispersión (`build_prototypes`):**
-   - **Centroide:** se calcula la **mediana** de cada característica para cada clase, lo que aporta resistencia ante contornos ruidosos o valores atípicos.
-   - **Escala robusta (MAD):** la dispersión típica dentro de cada clase se estima mediante la Desviación Absoluta de la Mediana ponderada sobre los residuos:
+   - **Centroide:** se calcula la **mediana** de cada característica para cada clase, lo que aporta robustez ante contornos ruidosos o valores atípicos.
+   - **Escala robusta:** estima la dispersión de los datos respecto al centro de cada clase mediante la mediana de las diferencias absolutas. Después, aplica un factor de ajuste para facilitar la comparación entre características y reducir la influencia de valores extremos:
      $$\text{scale} = 1.4826 \cdot \text{median}(|X - \text{centers}|)$$
-     Esto normaliza todas las características para que se midan en unidades homogéneas y comparables.
-3. **Regla de decisión (`classify`):** cada partícula se clasifica según la distancia euclídea normalizada a los prototipos de cada clase, asignándose a la clase que minimice dicha distancia:
+   
+3. **Regla de decisión:** cada partícula se clasifica según la distancia euclídea normalizada a los prototipos de cada clase, asignándose a la clase que minimice dicha distancia:
    $$d(x, c) = \sqrt{\sum_{j=1}^{17} \left( \frac{x_j - \text{center}_{c,j}}{\text{scale}_j} \right)^2}$$
 
 ### Validación y evaluación
 
-- **Validación Leave-One-Image-Out (`leave_one_image_out`):** se evalúa la capacidad de generalización sobre el propio conjunto de entrenamiento dejando fuera sucesivamente una imagen completa y clasificando sus partículas con los prototipos construidos a partir de las demás. Se obtiene una precisión de **85,7 %**, lo que corrobora la robustez del extractor de características entre diferentes capturas.
-- **Emparejamiento en test (`match_regions_to_gt`):** sobre `MPs_test.jpg`, las regiones segmentadas se asocian a las anotaciones del CSV mediante $\text{IoU} \ge 0.5$. De las 120 anotaciones reales, la segmentación detecta 104 regiones y empareja 61 partículas (las 59 restantes corresponden a partículas diminutas bajo el umbral mínimo de área o agrupaciones muy densas).
-- **Métricas de clasificación (`evaluate`):** sobre las partículas evaluadas se alcanza un **Accuracy del 83,6 %** (macro avg F1 = 0.802).
+- **Validación dejando una imagen fuera (`leave_one_image_out`):** se evalúa la capacidad de generalización sobre el propio conjunto de entrenamiento dejando fuera sucesivamente una imagen completa y clasificando sus partículas con los prototipos construidos a partir de las demás. Se obtiene una precisión de **85,7 %**, lo que confirma la robustez del extractor de características entre diferentes capturas.
+- **Emparejamiento en test (`match_regions_to_gt`):** sobre `MPs_test.jpg`, las regiones segmentadas se asocian a las anotaciones del CSV mediante $\text{IoU} \ge 0.5$. De las 120 anotaciones reales, la segmentación detecta 104 regiones y empareja 61 partículas.
+- **Métricas de clasificación (`evaluate`):** sobre las partículas evaluadas se alcanza un **Accuracy del 83,6 %**.
 
 ### Resultados
 

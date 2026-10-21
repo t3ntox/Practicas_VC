@@ -74,6 +74,7 @@ Para que el demostrador funcione correctamente deben cumplirse ciertas condicion
 
 ### Resultados
 
+![Resultado Tarea 1](Resultado_tarea_1.mp4)
 
 
 ## Tarea 2 — Clasificador de microplásticos

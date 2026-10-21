@@ -66,6 +66,7 @@ P3
 |- PEL.png
 |- README.md
 |- Resultado_tarea_previa.png
+|- Resultado_tarea_1.mp4
 |- TAR.png
 |- fragment-03-olympus-10-01-2020.JPG
 |- pellet-03-olympus-10-01-2020.JPG

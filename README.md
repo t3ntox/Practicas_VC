@@ -45,3 +45,30 @@ P2
 |- Resultado_Tarea_2.png
 |- tareas_p2.ipynb                          #Cuaderno jupyter con tareas desarrolladas
 ```
+
+
+### [PRÁCTICA 3](https://github.com/t3ntox/Practicas_VC/tree/main/P3)
+
+En esta tercera práctica se encontrará 2 tareas distintas, todas ellas desarrolladas dentro de un mismo cuaderno Jupyter.
+Además, del cuaderno Jupyter, encontrarán en la carpeta destinada a esta práctica otra carpeta destinada a mostrar los resultados de los distintos pasos llevados a cabo en la detección de plásticos.
+
+Para la realización de dichas tareas, se incluye en la carpeta de esta práctica un [README](https://github.com/t3ntox/Practicas_VC/tree/main/P3/README.md) donde se desarrolla el proceso de realización de cada tarea junto con imágenes y gif como muestra del resultado del código desarrollado.
+
+Estructura de la carpeta
+```
+P3
+|- resultados/
+|- FRA.png       
+|- MPs_test.jpg                             
+|- Monedas.jpg
+|- Monedas1.jpg       
+|- Monedas2.jpg               
+|- PEL.png
+|- README.md
+|- Resultado_tarea_previa.png
+|- TAR.png
+|- fragment-03-olympus-10-01-2020.JPG
+|- pellet-03-olympus-10-01-2020.JPG
+|- tar-03-olympus-10-01-2020.JPG
+|- tareas_p3.ipynb
+```

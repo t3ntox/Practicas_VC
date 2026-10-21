@@ -78,7 +78,7 @@ Para que el demostrador funcione correctamente deben cumplirse ciertas condicion
 
 ## Tarea 2 — Clasificador de microplásticos
 
-El objetivo de esta segunda tarea es detectar y clasificar microplásticos en tres categorías: **FRA** (fragmentos), **PEL** (pellets) y **TAR** (alquitrán o *tar*), a partir de imágenes microscópicas y sin recurrir a modelos de aprendizaje profundo (*deep learning*).
+El objetivo de esta segunda tarea es detectar y clasificar microplásticos en tres categorías: **FRA** (fragmentos), **PEL** (pellets) y **TAR** (alquitrán o *tar*), a partir de imágenes microscópicas y sin recurrir a modelos de aprendizaje profundo.
 
 El sistema propuesto aborda el problema mediante: estimación de fondo y segmentación adaptativa, extracción de características geométricas y cromáticas relativas, y un clasificador basado en prototipos estadísticos.
 

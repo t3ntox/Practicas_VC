@@ -57,16 +57,16 @@ Para la realización de dichas tareas, se incluye en la carpeta de esta práctic
 Estructura de la carpeta
 ```
 P3
-|- resultados/
+|- resultados/                                #Resultados obtenidos a lo largo del proceso de detección de los plásticos
 |- FRA.png       
 |- MPs_test.jpg                             
-|- Monedas.jpg
+|- Monedas.jpg                                #Imágenes de monedas para los primeros pasos en la detección de monedas
 |- Monedas1.jpg       
 |- Monedas2.jpg               
 |- PEL.png
 |- README.md
-|- Resultado_tarea_previa.png
-|- Resultado_tarea_1.mp4
+|- Resultado_tarea_1.gif                      #Demostración del funcionamiento del detector de monedas
+|- Resultado_tarea_previa.png                 #Resultado de detección en la tarea previa del detector de monedas
 |- TAR.png
 |- fragment-03-olympus-10-01-2020.JPG
 |- pellet-03-olympus-10-01-2020.JPG

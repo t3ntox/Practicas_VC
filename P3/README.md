@@ -51,7 +51,7 @@ Para que el demostrador funcione correctamente deben cumplirse ciertas condicion
 **Constantes:**
 - `MONEDAS`: diámetro real en mm de cada denominación.
 - `COBRE = (0.01, 0.02, 0.05)` y `ORO = (0.10, 0.20, 0.50)`: grupos de monedas por aleación, que comparten color. `1 €` y `2 €` son bimetálicas y se tratan aparte.
-- `TOL_H = 8` (tolerancia de tono para considerar dos monedas del mismo color), `TOL_S = 35` (contraste mínimo de saturación para detectar una moneda bimetálica) y `CORR_ESCALA = 1.08` (corrección empírica de la escala).
+- `TOL_H = 8` (tolerancia de tono para considerar dos monedas del mismo color), `TOL_S = 35` (contraste mínimo de saturación para detectar una moneda bimetálica) y `OFFSET_PX = 2` (píxeles que se restan al radio medido antes de calcular la escala).
 
 **Funciones:**
 1. **`detecta_circulos(frame)`:** suaviza el frame en gris con `cv2.GaussianBlur((9, 9), 2)` y aplica `cv2.HoughCircles(cv2.HOUGH_GRADIENT, ...)` con `param1=80`, `param2=25` y radios entre 30 y 160 píxeles. Después elimina duplicados: si dos círculos están muy próximos (distancia menor al 90 % del mayor radio) se considera la misma moneda, quedándose con el de mayor radio cuando los centros casi coinciden.
@@ -59,9 +59,9 @@ Para que el demostrador funcione correctamente deben cumplirse ciertas condicion
 3. **`tono(hsv, p)`:** mediana del canal H (tono) en la zona central de la moneda (60 % del radio). Sirve para distinguir cobre de oro.
 4. **`contraste(hsv, p)`:** diferencia de saturación entre el centro (distancia < 0,5 del radio) y el anillo exterior (entre 0,78 y 0,92). Es alto en valor absoluto en las monedas bimetálicas, donde centro y anillo son de aleaciones distintas, y su signo distingue 1 € de 2 €.
 5. **`es_cobre(p, ref)`:** compara el tono de la moneda con el de la referencia (que es de cobre), teniendo en cuenta que H es circular (`min(dh, 180 - dh)`).
-6. **`diametro_mm(p, ref)`:** convierte el radio en píxeles a mm usando la referencia: `MONEDAS[0.01] * r / r_ref * CORR_ESCALA`.
+6. **`diametro_mm(p, ref)`:** convierte el radio en píxeles a mm usando la referencia: `MONEDAS[0.01] * (r - OFFSET_PX) / (r_ref - OFFSET_PX)`.
 7. **`clasifica(d_mm, candidatas)`:** elige, entre las candidatas, la moneda cuyo diámetro real tiene menor error relativo respecto al medido, y la acepta solo si el error es inferior al 10 %.
-8. **`valor_moneda(p, ref)`:** decide el valor final. Si el contraste de saturación supera `TOL_S` se trata de una bimetálica (`1 €` si el contraste es negativo, `2 €` si es positivo). En caso contrario se decide el grupo (cobre u oro) por el tono y se clasifica por diámetro dentro de ese grupo.
+8. **`valor_moneda(p, ref)`:** decide el valor final. Si el valor absoluto del contraste de saturación supera `TOL_S` se trata de una bimetálica (`1 €` si el contraste es negativo, `2 €` si es positivo). En caso contrario se decide el grupo (cobre u oro) por el tono y se clasifica por diámetro dentro de ese grupo.
 9. **`etiqueta(v)`:** formatea el valor para mostrarlo (`"20c"`, `"1E"`, o `"?"` si no se pudo clasificar).
 
 **Bucle principal:**
@@ -69,7 +69,7 @@ Para que el demostrador funcione correctamente deben cumplirse ciertas condicion
 2. Solo se consideran **monedas activas** las pistas estables (`n >= 5` detecciones y como mucho 3 frames perdidos), lo que evita falsos positivos puntuales.
 3. Se toma como **referencia** la moneda activa de menor radio, que se asume de 1 céntimo, de forma análoga a la tarea previa. Cualquier moneda con radio similar (`<= 1.07 * r_ref`) se etiqueta como 1 céntimo.
 4. Tono y contraste se suavizan temporalmente (medias exponenciales de 0,9/0,1 y 0,8/0,2) para que la etiqueta no parpadee.
-5. Cada moneda se dibuja con un círculo y su etiqueta (azul: referencia, verde: clasificada, rojo: no reconocida, y más tenue si se ha perdido momentáneamente). El total acumulado se muestra arriba a la izquierda (`Total: X.XX EUR`).
+5. Cada moneda se dibuja con un círculo y su etiqueta (azul: referencia, verde: clasificada, rojo: no reconocida, y más tenue si se ha perdido momentáneamente). Bajo cada moneda, salvo la referencia, se muestra también su diámetro estimado en mm. El total de las monedas visibles en el frame se muestra arriba a la izquierda (`Total: X.XX EUR`).
 6. El bucle termina al pulsar `Esc`, liberando la cámara y cerrando las ventanas.
 
 ### Resultados

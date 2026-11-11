@@ -1,0 +1,53 @@
+task: detection
+
+evaluator:
+  type: CocoEvaluator
+  iou_types: ['bbox', ]
+
+# num_classes: 365
+# remap_mscoco_category: False
+
+# num_classes: 91
+# remap_mscoco_category: False
+
+num_classes: 1
+remap_mscoco_category: False
+
+
+train_dataloader: 
+  type: DataLoader
+  dataset: 
+    type: CocoDetectionPlates
+
+    # Rutas absolutas: el repo las resuelve desde la carpeta donde se lanza train.py, no desde este .yml
+    img_folder: ../../plates/coco-dataset/images
+    ann_file: ../../plates/coco-dataset/annotations/instances_train.json
+
+    return_masks: False
+    transforms:
+      type: Compose
+      ops: ~
+  shuffle: True
+  num_workers: 4
+  drop_last: True 
+  collate_fn:
+    type: BatchImageCollateFunction
+
+
+val_dataloader:
+  type: DataLoader
+  dataset: 
+    type: CocoDetectionPlates
+
+    # Rutas absolutas: el repo las resuelve desde la carpeta donde se lanza train.py, no desde este .yml
+    img_folder: ../../plates/coco-dataset/images
+    ann_file: ../../plates/coco-dataset/annotations/instances_val.json
+    return_masks: False
+    transforms:
+      type: Compose
+      ops: ~ 
+  shuffle: False
+  num_workers: 4
+  drop_last: False
+  collate_fn:
+    type: BatchImageCollateFunction

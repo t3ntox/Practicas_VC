@@ -21,7 +21,7 @@
 
 | YOLO | RT-DETR |
 |---|---|
-| ![F1 YOLO](./YOLO_resultados_entrenamiento/BoxF1_curve.png) | ![F1 RT-DETR](./RT-DETR_resultado_entrenamiento/F1_curve.png) |
+| ![F1 YOLO](../YOLO_resultados_entrenamiento/BoxF1_curve.png) | ![F1 RT-DETR](../RT-DETR_resultado_entrenamiento/F1_curve.png) |
 
 - **YOLO**: sube rápido y forma una meseta muy ancha, con F1 ≈ 0.80 o más entre conf ~0.3 y ~0.6 (**~**). El máximo (0.82) está en 0.409 y cae con fuerza a partir de ~0.65.
 - **RT-DETR**: forma de cúpula más estrecha, con máximo 0.74 en 0.491. Por encima de 0.7 solo entre conf ~0.35 y ~0.68 (**~**), y llega a cero cerca de 0.93.
@@ -31,7 +31,7 @@
 
 | YOLO | RT-DETR |
 |---|---|
-| ![Precisión YOLO](./YOLO_resultados_entrenamiento/BoxP_curve.png) | ![Precisión RT-DETR](./RT-DETR_resultado_entrenamiento/P_curve.png) |
+| ![Precisión YOLO](../YOLO_resultados_entrenamiento/BoxP_curve.png) | ![Precisión RT-DETR](../RT-DETR_resultado_entrenamiento/P_curve.png) |
 
 - **YOLO**: precisión ~0.8 con conf 0.2, ~0.9 con 0.4 y ~0.94 con 0.65 (**~**). Llega a 1.00 en 0.841.
 - **RT-DETR**: sube más despacio, con ~0.5 en conf 0.2, ~0.8 en 0.45 y ~0.9 en 0.7 (**~**). Llega a 1.00 solo en 0.950, con picos ruidosos en la clase `plate` cerca de 0.9.
@@ -41,7 +41,7 @@
 
 | YOLO | RT-DETR |
 |---|---|
-| ![Recall YOLO](./YOLO_resultados_entrenamiento/BoxR_curve.png) | ![Recall RT-DETR](./RT-DETR_resultado_entrenamiento/R_curve.png) |
+| ![Recall YOLO](../YOLO_resultados_entrenamiento/BoxR_curve.png) | ![Recall RT-DETR](../RT-DETR_resultado_entrenamiento/R_curve.png) |
 
 - **YOLO**: parte de 0.83, baja suavemente a ~0.77 en conf 0.2 y ~0.70 en 0.6, y colapsa entre 0.7 y 0.85 (**~**).
 - **RT-DETR**: parte de 0.76, baja a ~0.73 en 0.2 y ~0.63 en 0.6, y colapsa entre 0.8 y 0.92 (**~**).
@@ -51,7 +51,7 @@
 
 | YOLO | RT-DETR |
 |---|---|
-| ![PR YOLO](./YOLO_resultados_entrenamiento/BoxPR_curve.png) | ![PR RT-DETR](./RT-DETR_resultado_entrenamiento/PR_curve.png) |
+| ![PR YOLO](../YOLO_resultados_entrenamiento/BoxPR_curve.png) | ![PR RT-DETR](../RT-DETR_resultado_entrenamiento/PR_curve.png) |
 
 - **YOLO** (mAP50 0.776): precisión ~0.99 → ~0.94 hasta recall ~0.7 y caída brusca entre 0.77 y 0.85, donde termina (**~**).
 - **RT-DETR** (mAP50 0.667): precisión ~0.95 → ~0.90 hasta recall ~0.6 y caída brusca en torno a 0.70-0.76, donde termina (**~**).
@@ -61,8 +61,8 @@
 
 | | YOLO | RT-DETR |
 |---|---|---|
-| Absoluta | ![Matriz YOLO](./YOLO_resultados_entrenamiento/confusion_matrix.png) | ![Matriz RT-DETR](./RT-DETR_resultado_entrenamiento/confusion_matrix.png) |
-| Normalizada | ![Matriz normalizada YOLO](./YOLO_resultados_entrenamiento/confusion_matrix_normalized.png) | ![Matriz normalizada RT-DETR](./RT-DETR_resultado_entrenamiento/confusion_matrix_normalized.png) |
+| Absoluta | ![Matriz YOLO](../YOLO_resultados_entrenamiento/confusion_matrix.png) | ![Matriz RT-DETR](../RT-DETR_resultado_entrenamiento/confusion_matrix.png) |
+| Normalizada | ![Matriz normalizada YOLO](../YOLO_resultados_entrenamiento/confusion_matrix_normalized.png) | ![Matriz normalizada RT-DETR](../RT-DETR_resultado_entrenamiento/confusion_matrix_normalized.png) |
 
 | | YOLO | RT-DETR |
 |---|---|---|

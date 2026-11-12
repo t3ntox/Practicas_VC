@@ -1,5 +1,7 @@
 # Comparativa de gráficas del detector de matrículas: YOLO vs RT-DETR
 
+> **Para que se vean las imágenes**: guarda este `.md` en la misma carpeta que `yolo_resultados_entrenamiento/` y `rt-detr_resultado_entrenamiento/`. No he podido acceder a esas carpetas desde aquí, así que las rutas de las imágenes usan los nombres estándar de Ultralytics (`F1_curve.png`, `P_curve.png`, `R_curve.png`, `PR_curve.png`, `confusion_matrix.png`, `confusion_matrix_normalized.png`). Si tus archivos se llaman distinto, hay que ajustar esos nombres.
+
 Fuentes: `graficas.pdf` (YOLO) y `grafica rtdetr.pdf` (RT-DETR). Cada documento contiene las seis gráficas estándar de validación para la clase única `plate`: curvas F1, precisión, recall (frente a confianza), curva precisión-recall y dos matrices de confusión (absoluta y normalizada).
 
 > Los valores marcados con **~** están leídos a ojo de las curvas; el resto aparece impreso en las propias gráficas.
@@ -13,35 +15,61 @@ Fuentes: `graficas.pdf` (YOLO) y `grafica rtdetr.pdf` (RT-DETR). Cada documento 
 | Recall máximo (conf ≈ 0) | **0.83** | 0.76 | +0,07 |
 | Precisión 1.00 alcanzada en conf | 0.841 | 0.950 | RT-DETR necesita ~0,11 más |
 | Recall en matriz normalizada | **0.87** | 0.77 | +0,10 |
-| Falsos negativos (normalizado) | 0.13 | 0.23 | |
-| Verdaderos positivos (matriz absoluta) | 846 | 740 | |
-| Falsos negativos (matriz absoluta) | 132 | 227 | |
-| Falsos positivos (matriz absoluta) | 9 772 | 119 260 | |
-| Placas anotadas (TP + FN) | 978 | 967 | |
+| Falsos negativos (normalizado) | 0.13 | 0.23 | RT-DETR pierde 0,10 más (casi el doble) |
+| Verdaderos positivos (matriz absoluta) | 846 | 740 | YOLO +106 (RT-DETR detecta un 12,5 % menos) |
+| Falsos negativos (matriz absoluta) | 132 | 227 | RT-DETR +95 (un 72 % más de placas perdidas) |
+| Falsos positivos (matriz absoluta) | 9 772 | 119 260 | RT-DETR ~12,2 veces más (+109 488) |
+| Placas anotadas (TP + FN) | 978 | 967 | 11 de diferencia entre conjuntos |
 
 ## 2. Análisis por gráfica
 
 ### 2.1 Curva F1-Confianza
+
+| YOLO | RT-DETR |
+|---|---|
+| ![F1 YOLO](yolo_resultados_entrenamiento/F1_curve.png) | ![F1 RT-DETR](rt-detr_resultado_entrenamiento/F1_curve.png) |
+
 - **YOLO**: sube rápido y forma una meseta muy ancha, con F1 ≈ 0.80 o más entre conf ~0.3 y ~0.6 (**~**). El máximo (0.82) está en 0.409 y cae con fuerza a partir de ~0.65.
 - **RT-DETR**: forma de cúpula más estrecha, con máximo 0.74 en 0.491. Por encima de 0.7 solo entre conf ~0.35 y ~0.68 (**~**), y llega a cero cerca de 0.93.
 - **Lectura**: YOLO es más tolerante a la elección del umbral; RT-DETR es más sensible a él y su techo es más bajo.
 
 ### 2.2 Curva Precisión-Confianza
+
+| YOLO | RT-DETR |
+|---|---|
+| ![Precisión YOLO](yolo_resultados_entrenamiento/P_curve.png) | ![Precisión RT-DETR](rt-detr_resultado_entrenamiento/P_curve.png) |
+
 - **YOLO**: precisión ~0.8 con conf 0.2, ~0.9 con 0.4 y ~0.94 con 0.65 (**~**). Llega a 1.00 en 0.841.
 - **RT-DETR**: sube más despacio, con ~0.5 en conf 0.2, ~0.8 en 0.45 y ~0.9 en 0.7 (**~**). Llega a 1.00 solo en 0.950, con picos ruidosos en la clase `plate` cerca de 0.9.
 - **Lectura**: las confianzas de RT-DETR están peor calibradas a umbrales bajos: para igualar la precisión de YOLO hay que subir el umbral bastante.
 
 ### 2.3 Curva Recall-Confianza
+
+| YOLO | RT-DETR |
+|---|---|
+| ![Recall YOLO](yolo_resultados_entrenamiento/R_curve.png) | ![Recall RT-DETR](rt-detr_resultado_entrenamiento/R_curve.png) |
+
 - **YOLO**: parte de 0.83, baja suavemente a ~0.77 en conf 0.2 y ~0.70 en 0.6, y colapsa entre 0.7 y 0.85 (**~**).
 - **RT-DETR**: parte de 0.76, baja a ~0.73 en 0.2 y ~0.63 en 0.6, y colapsa entre 0.8 y 0.92 (**~**).
 - **Lectura**: RT-DETR genera confianzas más altas (su curva se desplaza a la derecha), pero con menos recall en todo el rango.
 
 ### 2.4 Curva Precisión-Recall
+
+| YOLO | RT-DETR |
+|---|---|
+| ![PR YOLO](yolo_resultados_entrenamiento/PR_curve.png) | ![PR RT-DETR](rt-detr_resultado_entrenamiento/PR_curve.png) |
+
 - **YOLO** (mAP50 0.776): precisión ~0.99 → ~0.94 hasta recall ~0.7 y caída brusca entre 0.77 y 0.85, donde termina (**~**).
 - **RT-DETR** (mAP50 0.667): precisión ~0.95 → ~0.90 hasta recall ~0.6 y caída brusca en torno a 0.70-0.76, donde termina (**~**).
 - **Lectura**: la curva de YOLO envuelve a la de RT-DETR. Es más alta (mejor precisión) y llega más lejos (mayor recall máximo), de ahí los 0,109 de diferencia en mAP50.
 
 ### 2.5 Matrices de confusión
+
+| | YOLO | RT-DETR |
+|---|---|---|
+| Absoluta | ![Matriz YOLO](yolo_resultados_entrenamiento/confusion_matrix.png) | ![Matriz RT-DETR](rt-detr_resultado_entrenamiento/confusion_matrix.png) |
+| Normalizada | ![Matriz normalizada YOLO](yolo_resultados_entrenamiento/confusion_matrix_normalized.png) | ![Matriz normalizada RT-DETR](rt-detr_resultado_entrenamiento/confusion_matrix_normalized.png) |
+
 | | YOLO | RT-DETR |
 |---|---|---|
 | Recall (placa detectada) | 0.87 | 0.77 |

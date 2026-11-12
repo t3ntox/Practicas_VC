@@ -73,3 +73,37 @@ P3
 |- tar-03-olympus-10-01-2020.JPG
 |- tareas_p3.ipynb
 ```
+
+### [PRÁCTICA 4](https://github.com/t3ntox/Practicas_VC/tree/main/P4)
+
+En esta cuarta práctica se abordará el desarrollo y comparación de YOLO y RT-DETR, así como la integración de herramientas de OCR como PaddleOCR y modelos de lenguaje de VLM.
+
+Para la realización de dichas tareas, se incluye el código en diferentes cuadernos Jupyter junto con scripts de utilidad y carpetas dedicadas al almacenamiento de pesos, resultados de entrenamiento y evaluaciones.
+
+Estructura de la carpeta
+```
+P4
+|- comparativas/                                   # Comparativas entre los diferentes modelos y resultados
+|- ocr_eval/                                       
+|- plates/                                         
+|- RT-DETR/                                       
+|- RT-DETR_PaddleOCR_result/                       
+|- RT-DETR_resultado_entrenamiento/                
+|- RT-DETR_VLM_result/                             
+|- vlm_eval/                                       
+|- weights/                                        
+|- YOLO/                                           
+|- YOLO_PaddleOCR_result/                          
+|- YOLO_resultado_entrenamiento/                   
+|- YOLO_VLM_result/                                
+|- C0142.MP4                                       # Vídeo de prueba empleado para la detección en movimiento
+|- load_rtdetr.py                                  
+|- RT-DETR_entrenamiento.ipynb                     
+|- RT-DETR_PaddleOCR.ipynb                         # Cuaderno Jupyter para la integración de RT-DETR y PaddleOCR
+|- RT-DETR_VLM.ipynb                               # Cuaderno Jupyter para la integración de RT-DETR con VLM
+|- utils_matriculas.py                             
+|- YOLO_entrenamiento.ipynb                        
+|- YOLO_PaddleOCR.ipynb                            # Cuaderno Jupyter para la integración de YOLO y PaddleOCR
+|- YOLO_VLM.ipynb                                  # Cuaderno Jupyter para la integración de YOLO con VLM
+|- yolo11l.pt                                      
+```

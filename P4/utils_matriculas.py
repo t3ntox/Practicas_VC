@@ -818,7 +818,7 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
                           conf_vehiculos=0.5, plate_conf=0.3, hold_frames=5, max_crops=8,
                           min_crop_side=48, crop_margin=0.05, color_placa=(0, 165, 255),
                           escala_texto_placa=0.35, ocr_cada=5, min_ancho_ocr=40, min_chars_placa=4,
-                          ocr_score_ok=0.5, ocr_max_intentos=6):
+                          ocr_score_ok=0.5, ocr_max_intentos=6, vlm=False):
     """Detecta y sigue personas/vehículos con RT-DETR + ByteTrack, localiza la matrícula dentro del recorte
     de cada vehículo y la lee con `leer_placa`. Guarda resultado.mp4 y resultado.csv en `output_dir`.
     Devuelve (plates_seen, lecturas)."""
@@ -984,7 +984,10 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
         cv2.rectangle(image, (0, h - 40), (w, h), (0, 0, 0), -1)
         texto = "  |  ".join(f"{class_names[c]}: {len(ids_propios[c])}" for c in class_names)
         texto += f"  |  plate: {len(plates_seen)}"
-        texto += f"  |  ocr: {len(lecturas)}"
+        if vlm == False:
+            texto += f"  |  OCR: {len(lecturas)}"
+        else:
+            texto += f"  |  VLM: {len(lecturas)}"
         cv2.putText(image, texto, (10, h - 12),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 

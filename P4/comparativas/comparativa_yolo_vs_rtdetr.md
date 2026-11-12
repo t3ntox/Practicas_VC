@@ -1,11 +1,5 @@
 # Comparativa de gráficas del detector de matrículas: YOLO vs RT-DETR
 
-> **Para que se vean las imágenes**: guarda este `.md` en la misma carpeta que `yolo_resultados_entrenamiento/` y `rt-detr_resultado_entrenamiento/`. No he podido acceder a esas carpetas desde aquí, así que las rutas de las imágenes usan los nombres estándar de Ultralytics (`F1_curve.png`, `P_curve.png`, `R_curve.png`, `PR_curve.png`, `confusion_matrix.png`, `confusion_matrix_normalized.png`). Si tus archivos se llaman distinto, hay que ajustar esos nombres.
-
-Fuentes: `graficas.pdf` (YOLO) y `grafica rtdetr.pdf` (RT-DETR). Cada documento contiene las seis gráficas estándar de validación para la clase única `plate`: curvas F1, precisión, recall (frente a confianza), curva precisión-recall y dos matrices de confusión (absoluta y normalizada).
-
-> Los valores marcados con **~** están leídos a ojo de las curvas; el resto aparece impreso en las propias gráficas.
-
 ## 1. Resumen de métricas
 
 | Métrica | YOLO | RT-DETR | Diferencia |
@@ -27,7 +21,7 @@ Fuentes: `graficas.pdf` (YOLO) y `grafica rtdetr.pdf` (RT-DETR). Cada documento 
 
 | YOLO | RT-DETR |
 |---|---|
-| ![F1 YOLO](yolo_resultados_entrenamiento/F1_curve.png) | ![F1 RT-DETR](rt-detr_resultado_entrenamiento/F1_curve.png) |
+| ![F1 YOLO](YOLO_resultados_entrenamiento/BoxF1_curve.png) | ![F1 RT-DETR](RT-DETR_resultado_entrenamiento/F1_curve.png) |
 
 - **YOLO**: sube rápido y forma una meseta muy ancha, con F1 ≈ 0.80 o más entre conf ~0.3 y ~0.6 (**~**). El máximo (0.82) está en 0.409 y cae con fuerza a partir de ~0.65.
 - **RT-DETR**: forma de cúpula más estrecha, con máximo 0.74 en 0.491. Por encima de 0.7 solo entre conf ~0.35 y ~0.68 (**~**), y llega a cero cerca de 0.93.
@@ -89,7 +83,6 @@ Los falsos positivos son muy altos en ambos modelos. Esto indica que las matrice
 - En vídeo, YOLO ya trabaja casi en su óptimo (0.4 frente a 0.409).
 - RT-DETR trabaja por debajo de su óptimo en todos los casos. Esto es coherente con lo visto en las comparativas anteriores, donde RT-DETR producía muchos más falsos positivos geométricos (278 con conf 0.35, frente a 108 de YOLO con conf 0.25), localizando el mismo número de placas (188/407).
 - A igual umbral (0.25) en la evaluación con el VLM, RT-DETR generó 613 detecciones frente a 367 de YOLO y encontró menos placas (182 frente a 188 de 407), en línea con su peor recall y su menor precisión a umbrales bajos.
-- Los cuadernos evalúan imágenes de `plates/raw-dataset` (la variable `SPLIT = "train"` aparece definida pero no se usa), mientras que las gráficas provienen de la validación del entrenamiento. No está claro que sean las mismas imágenes, así que las cifras no son directamente equiparables.
 
 ## 4. Conclusiones
 

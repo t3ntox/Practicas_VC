@@ -53,6 +53,8 @@ Además, la diferencia se mantiene prácticamente constante tanto en el último 
 |:---:|:---:|
 | ![Precision RT-DETR](../RT-DETR_resultado_entrenamiento/P_curve.png) | ![Precision YOLO](../YOLO_resultados_entrenamiento/BoxP_curve.png) |
 
+La oscilación que se puede observar, en la gráfica perteneciente a RT-DETR, se produce debido a que en umbrales altos el número de detecciones se reduce significativamente provocando que los falsos positivos tenga un peso mayor.
+
 **Recall-Confianza**
 
 | RT-DETR | YOLO |

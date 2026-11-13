@@ -13,7 +13,7 @@ output_dir: ./output/rtdetrv2_r18vd_120e_plate
 tuning: ../../weights/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth
 
 print_freq: 10          
-checkpoint_freq: 10     # best.pth y last.pth se guardan siempre
+checkpoint_freq: 5     # best.pth y last.pth se guardan siempre
 
 
 PResNet:
@@ -65,7 +65,7 @@ optimizer:
     
 
 train_dataloader:
-  total_batch_size: 16
+  total_batch_size: 2
   num_workers: 4        # si Windows da problemas de multiprocessing, bajar a 0
   dataset:
     transforms:

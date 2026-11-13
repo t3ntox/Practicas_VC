@@ -17,7 +17,7 @@ Path.mkdir(OUT_ANN_DIR, exist_ok=True)
 
 MAX_SIDE = 1280                                        # lado mayor tras reescalar
 BLOCK    = 10                                          # fotos seguidas que van juntas al mismo conjunto
-SPLITS   = {"train": 0.60, "val": 0.15, "test": 0.25}
+SPLITS   = {"train": 0.75, "val": 0.25}
 SEED     = 42
 
 CATEGORIES = [{"id": 0, "name": "matricula", "supercategory": "vehiculo"}]

@@ -14,7 +14,7 @@ Los resultados son producto del procesamiento de las mismas 200 imágenes del da
 | Corrección por posición | Sí | Sí |
 | Vídeo: `OCR_CADA` / `OCR_MAX_INTENTOS` | 5 / 6 | 5 / 6 |
 
-Ambos experimentos usan el mismo detector con la misma configuración, por lo que producen exactamente las mismas detecciones y la comparación sobre detecciones es directa.
+Ambos experimentos usan el mismo detector con la misma configuración, por lo que producen exactamente las mismas detecciones y la comparación sobre detecciones es directa. Los parámetros de vídeo (`OCR_CADA` y `OCR_MAX_INTENTOS`) solo afectan al procesamiento de vídeo y no intervienen en la evaluación sobre el dataset anotado.
 
 ## 2. Resultados en el dataset anotado
 

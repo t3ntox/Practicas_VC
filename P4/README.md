@@ -1,9 +1,9 @@
 # Práctica 4
 
 En este directorio del repositorio encontrarán múltiples cuadernos jupyter cada uno destinado a una serie de tareas concretas. Los distintos archivos son:
-- `RT-DETR_entrenamiento.ipynb`, `YOLO_entrenamiento.ipynb` -> destinados a la ejecución del entrenamiento junto a las gráficas que representan los distintos datos extraidos para una posterior comparativa.
-- `RT-DETR_PaddleOCR.ipynb`, `YOLO_PaddleOCR.ipynb` -> destinados a la evaluación del ocr clásico seleccionado, junto a su aplicación en el vídeo.
-- `RT-DETR_VLM.ipynb`, `YOLO_VLM.ipynb` -> destinados a la evaluacion del VLM seleccionado, Hugging Face, junto a su aplicación en el vídeo.
+- [`RT-DETR_entrenamiento.ipynb`](./RT-DETR_entrenamiento.ipynb), [`YOLO_entrenamiento.ipynb`](./YOLO_entrenamiento.ipynb)-> destinados a la ejecución del entrenamiento junto a las gráficas que representan los distintos datos extraidos para una posterior comparativa.
+- [`RT-DETR_PaddleOCR.ipynb`](./RT-DETR_PaddleOCR.ipynb), [`YOLO_PaddleOCR.ipynb`](./YOLO_PaddleOCR.ipynb) -> destinados a la evaluación del ocr clásico seleccionado, junto a su aplicación en el vídeo.
+- [`RT-DETR_VLM.ipynb`](./RT-DETR_VLM.ipynb), [`YOLO_VLM.ipynb`](./YOLO_VLM.ipynb) -> destinados a la evaluacion del VLM seleccionado, Hugging Face, junto a su aplicación en el vídeo.
 
 Todos los cuadernos, menos los dedicados al entrenamiento, dependen del archivo `utils_matrículas.py` que recoge todas las funciones comunes a los cuadernos para evitar la duplicidad en el código. 
 

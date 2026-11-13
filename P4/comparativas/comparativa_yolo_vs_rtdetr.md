@@ -160,7 +160,7 @@ En cuanto a las métricas adicionales de RT-DETR, se observa que el modelo prese
 
 ## 6. Comparaciones reales
 
-A través de la evaluación de 200 imágenes con cada modelo se han guardado las matrículas que detecta y las que no detecta cada uno (carpetas `detectadas` y `no_detectadas` dentro de `resultados/YOLO` y `resultados/RTDETR`). De ellas se ha seleccionado un pequeño número de imágenes representativas que se agrupan en las 4 combinaciones posibles.
+A través de la evaluación de 200 imágenes con cada modelo se han guardado las matrículas que detecta y las que no detecta cada uno (carpetas `detectadas` y `no_detectadas` dentro de [`resultados/YOLO`](../resultados/YOLO) y [`resultados/RTDETR`]((../resultados/RTDETR))). De ellas se ha seleccionado un pequeño número de imágenes representativas que se agrupan en las 4 combinaciones posibles.
 
 ### Matrículas que ambos modelos han sido capaces de detectar
 

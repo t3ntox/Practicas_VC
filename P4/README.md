@@ -89,8 +89,6 @@ Todos los cuadernos se han ejecutado en un entorno de Python con las siguientes 
 - `jinja2`, `requests` y `urllib3`: dependencias auxiliares.
 - `ipykernel`: ejecución de los cuadernos Jupyter.
 
-Además, el cuaderno de RT-DETR clona automáticamente el repositorio [RT-DETR](https://github.com/lyuwenyu/RT-DETR)
-
 ------
 
 

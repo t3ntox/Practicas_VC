@@ -75,4 +75,23 @@ Otra de las comparativas realizadas, es entre la [detección de matrículas](./c
 
 ------
 
+## Dependencias
+Todos los cuadernos se han ejecutado en un entorno de Python con las siguientes librerías:
+
+- `pytorch`: base de los modelos de detección YOLO y RT-DETR y del VLM. Se recomienda instalar la versión con soporte para CUDA si se dispone de GPU.
+- `ultralytics`: entrenamiento e inferencia de YOLO, y seguimiento con ByteTrack en el pipeline de YOLO.
+- `supervision==0.25.1`: seguimiento con ByteTrack en el pipeline de RT-DETR.
+- `faster-coco-eval`: evaluación con métricas COCO durante el entrenamiento de RT-DETR.
+- `tensorboard`: registro de las métricas del entrenamiento de RT-DETR.
+- `paddleocr`: OCR clásico seleccionado para la lectura de matrículas.
+- `transformers`, `accelerate` y `sentencepiece`: carga y ejecución del VLM `PaddlePaddle/PaddleOCR-VL`.
+- `numpy`, `pillow` y `matplotlib`: tratamiento de imágenes y generación de las gráficas.
+- `jinja2`, `requests` y `urllib3`: dependencias auxiliares.
+- `ipykernel`: ejecución de los cuadernos Jupyter.
+
+Además, el cuaderno de RT-DETR clona automáticamente el repositorio [RT-DETR](https://github.com/lyuwenyu/RT-DETR)
+
+------
+
+
 Durante la realización del código de esta práctica se ha hecho uso de la IA Claude.

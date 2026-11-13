@@ -26,6 +26,7 @@ Comparación de las métricas de validación de dos modelos entrenados para dete
 | mAP@50-95 (mejor epoch) | ~0.312 | ~0.423 | +0.111  |
 
 Los datos que componen esta tabla, muestran una ventaja clara y consistente de YOLO frente a RT-DETR en todas las métricas de detección evaluadas: YOLO supera a RT-DETR por aproximadamente 18 puntos porcentuales en mAP@50 y por 10–11 puntos en mAP@50-95 ).  Esta diferencia indica que YOLO no solo detecta más objetos con mayor confianza a un umbral de IoU de 0.50, sino que también localiza las cajas con mayor precisión a umbrales más estrictos. 
+
 Además, la diferencia se mantiene prácticamente constante tanto en el último epoch como en el mejor epoch, lo que sugiere que no es una fluctuación puntual del entrenamiento, sino una ventaja estructural del modelo YOLO en este conjunto de datos y configuración. 
 
 
@@ -123,6 +124,7 @@ Estas curvas precisión-recall muestran que YOLO mantiene una mayor precisión p
 | Background predicho como plate (FP) | 1.00 | 1.00 |
 
 Dado que el conjunto utilizado para generar cada matriz es distinto, se presentan las versiones normalizadas, lo que permite compararlas. El valor de FP = 1.00 se debe a que, en el cálculo de la matriz, los verdaderos negativos no se contabilizan: la fila/columna de la clase “fondo” solo contiene falsos positivos, por lo que al normalizarla todo su contenido queda en 1.00. Este valor es un artefacto de la normalización y no refleja el rendimiento del modelo.
+
 Dichas matrices normalizadas muestran que YOLO detecta correctamente el 87% de las placas reales, frente al 72% de RT-DETR. Esto implica que, por cada 100 placas reales, YOLO detectaría aproximadamente 87 y omitiría 13, mientras que RT-DETR detectaría 72 y omitiría 28; por tanto, YOLO reduce las omisiones en aproximadamente un 54% respecto a RT-DETR, una ventaja relevante cuando se busca evitar que las placas pasen inadvertidas. 
 
 

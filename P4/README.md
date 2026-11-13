@@ -1,9 +1,9 @@
 # Práctica 4
 
 En este directorio del repositorio encontrarán múltiples cuadernos jupyter cada uno destinado a una serie de tareas concretas. Los distintos archivos son:
-- `RT-DETR_entrenamiento.ipynb`, `YOLO_entrenamiento.ipynb` -> destinados a la ejecución del entrenamiento junto a las gráficas que representan los distintos datos extraidos para una posterior comparativa.
-- `RT-DETR_PaddleOCR.ipynb`, `YOLO_PaddleOCR.ipynb` -> destinados a la evaluación del ocr clásico seleccionado, junto a su aplicación en el vídeo.
-- `RT-DETR_VLM.ipynb`, `YOLO_VLM.ipynb` -> destinados a la evaluacion del VLM seleccionado, Hugging Face, junto a su aplicación en el vídeo.
+- [`RT-DETR_entrenamiento.ipynb`](./RT-DETR_entrenamiento.ipynb), [`YOLO_entrenamiento.ipynb`](./YOLO_entrenamiento.ipynb)-> destinados a la ejecución del entrenamiento junto a las gráficas que representan los distintos datos extraidos para una posterior comparativa.
+- [`RT-DETR_PaddleOCR.ipynb`](./RT-DETR_PaddleOCR.ipynb), [`YOLO_PaddleOCR.ipynb`](./YOLO_PaddleOCR.ipynb) -> destinados a la evaluación del ocr clásico seleccionado, junto a su aplicación en el vídeo.
+- [`RT-DETR_VLM.ipynb`](./RT-DETR_VLM.ipynb), [`YOLO_VLM.ipynb`](./YOLO_VLM.ipynb) -> destinados a la evaluacion del VLM seleccionado, Hugging Face, junto a su aplicación en el vídeo.
 
 Todos los cuadernos, menos los dedicados al entrenamiento, dependen del archivo `utils_matrículas.py` que recoge todas las funciones comunes a los cuadernos para evitar la duplicidad en el código. 
 
@@ -41,7 +41,7 @@ Para realizar el entrenamiento al modelo inicial se le han añadido una serie de
 - lr 0.0001 y 0.00001 para el backbone
 - Durante las últimas 3 épocas no se realizan ningún tipo de transformacion a las imágenes
 
-El modelo de entrenamiento seleccionado, es el `s` de la versión 2 de RT-DETR (se puede ver en [load_rtdetr.py](./load_rtdetr.py) específicamente el modelo que corresponde a `s`). Este parte de sus pesos originales en el entrenamiento, no se realiza la congelación de capas del backbone para optimizar el entrenamiento, que a través de los datos con los que se entrena se van adaptando a la única clase que se quiere detectar `matrículas`.
+El modelo de entrenamiento seleccionado, es el `s` de la versión 2 de RT-DETR (se puede ver en [load_rtdetr.py](./load_rtdetr.py) específicamente el modelo que corresponde a `s`). Este parte de sus pesos originales en el entrenamiento, no se realiza la congelación de capas del backbone para optimizar el entrenamiento, que a través de los datos con los que se entrena se van adaptando a la única clase que se quiere detectar `matrículas`. Todos los resultados del entrenamiento se guardan en [RT-DETR_resultados_entrenamiento](./RT-DETR_resultados_entrenamiento)
 
 ------
 
@@ -56,11 +56,15 @@ Para todo este proceso se aplican; un sistema de votación para evitar la clasif
 
 Únicamente para RT-DETR, con el objetivo de obtener un track lo más preciso posible, se emplean dos trackers distintos: uno para personas y otros para vehículos. Esta distinción, permite que el parámetro `lost_track_buffer` sea distinto ya que ambas clases se mueven en pantalla a velocidades muy distintas. Por ello, el tracker de las personas requiere un valor más alto, ya que sus oclusiones se prolongan más en el tiempo, para mantener el id durante el track. Junto a ello, el uso de una confianza tan baja se debe a que permite delegar en los trackers el descarte de detecciones, permitiendo el seguimiento de elementos durante un mayor período de tiempo.
 
-Vídeos:
+Vídeos y CSV correspondientes:
 - [Video YOLO PaddleOCR](./YOLO_PaddleOCR_result/resultado.mp4)
+- [CSV YOLO PaddleOCR](./YOLO_PaddleOCR_result/resultado.csv)
 - [Video RT-DETR PaddleOCR](./RT-DETR_PaddleOCR_result/resultado.mp4)
+- [CSV RT-DETR PaddleOCR](./RT-DETR_PaddleOCR_result/resultado.csv)
 - [Video YOLO Hugging Face](./YOLO_VLM_result/resultado.mp4)
+- [CSV YOLO Hugging Face](./YOLO_VLM_result/resultado.csv)
 - [Video RT-DETR Hugging Face](./RT-DETR_VLM_result/resultado.mp4)
+- [CSV RT-DETR Hugging Face](./RT-DETR_VLM_result/resultado.csv)
 
 ------
 

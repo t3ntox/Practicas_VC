@@ -55,6 +55,7 @@ Mejora que aporta la corrección por posición sobre cada lector (exact match, e
 | Techo | +2,0 | +3,4 |
 
 Los resultados muestran que VLM obtiene un rendimiento superior a PaddleOCR en ambos escenarios de evaluación, tanto en exact match como en acierto por carácter. Sobre las detecciones de RT-DETR, VLM alcanza un exact match de 0,814 frente a 0,714 de PaddleOCR, mientras que el acierto por carácter aumenta de 0,889 a 0,932. Esta ventaja se mantiene al aplicar la corrección, con valores de 0,854 y 0,942 para VLM, frente a 0,754 y 0,9 de PaddleOCR. En el escenario de recorte anotado, se observa la misma tendencia: VLM obtiene un exact match de 0,788 y un acierto por carácter de 0,924, superando los 0,716 y 0,881 de PaddleOCR, respectivamente. 
+
 Tras la corrección, ambos modelos mejoran sus resultados, alcanzando VLM 0,822 de exact match y 0,932 de acierto por carácter, frente a 0,736 y 0,885 de PaddleOCR. En términos generales, la corrección aporta mejoras consistentes en ambos modelos y escenarios, aunque no modifica la ventaja relativa de VLM. Esta ventaja resaltada, podría estar relacionada con la arquitectura del VLM basada en la combinación un codificador visual con un modelo de lenguaje
 
 ### 2.3 Tiempo por lectura

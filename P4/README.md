@@ -56,3 +56,7 @@ Vídeos:
 ## [Comparativas](./comparativas/)
 Se encontrarán también con comparativas entre OCR clásico y VLM, estás comparaciones se han hecho con base en [RT-DETR](./comparativas/comparativa_rtdetr_ocr_vs_vlm.md) y [YOLO](./comparativas/comparativa_yolo_ocr_vs_vlm.md). En ellas, se extrae la precisión en la lectura de matrículas a partir de las detecciones de matrículas de sus repectivos modelos usados como base y a partir de las anotaciones del propio dataset. Junto a ello, también se calcula a partir de la distancia de Levenshtein la precision caracter por caracter del modelo. Por último, también se extrae el tiempo que tardan por detección de media los modelos.
 Otra de las comparativas realizadas, es entre la [detección de matrículas](./comparativas/comparativa_yolo_vs_rtdetr.md) con YOLO y con RT-DETR. En dicha comparativa, a través de las gráficas extraídas en el entrenamiento se podrá observar la tolerancia al cambio de la confianza, la progresión realizada durante los entrenamientos, entre otras cuestiones que se tratan en el archivo dedicado.
+
+------
+
+Durante la realización del código de esta práctica se ha hecho uso de la IA Claude.

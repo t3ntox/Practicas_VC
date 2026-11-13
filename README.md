@@ -85,7 +85,8 @@ Estructura de la carpeta
 P4
 |- comparativas/                                   # Comparativas entre los diferentes modelos y resultados
 |- ocr_eval/                                       
-|- plates/                                         
+|- plates/
+|- resultados/                                     # Comparativa de detecciones en imágenes entre YOLO Y RT-DETR                                         
 |- RT-DETR/                                       
 |- RT-DETR_PaddleOCR_result/                       
 |- RT-DETR_resultado_entrenamiento/                

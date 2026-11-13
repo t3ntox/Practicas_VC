@@ -201,18 +201,3 @@ A través de la evaluación de 200 imágenes con cada modelo se han guardado las
 ---
 
 ## 7. Conclusiones
-
-Los resultados muestran que YOLO supera a RT-DETR en todas las métricas de detección comparables: la diferencia es de +0.18 en mAP@50, +0.10 en mAP@50-95, +0.13 en F1 máximo y +0.11 en recall máximo. Esta ventaja se mantiene tanto en el último epoch como en el mejor epoch, lo que indica que no responde a una fluctuación puntual del entrenamiento, sino que parece una característica estructural del modelo en este conjunto de datos y configuración. Además, YOLO alcanza este rendimiento con menos de la mitad de epochs (24 frente a 50), lo que refleja una convergencia más rápida, mientras que RT-DETR presenta indicios de estancamiento y un posible sobreajuste a partir del epoch ~20.
- 
-En cuanto al comportamiento frente al umbral de confianza, ambos modelos comparten un umbral óptimo cercano a 0.41, aunque YOLO resulta más robusto a su elección gracias a una curva F1 más amplia. YOLO también detecta más matrículas reales, con un recall normalizado de 0.87 frente a 0.72 de RT-DETR, lo que supone reducir las omisiones en aproximadamente un 54%. Esta ventaja es relevante cuando el objetivo es evitar que las placas pasen inadvertidas.
- 
-Por su parte, RT-DETR presenta un nivel elevado de falsos positivos a umbrales bajos (una precisión de ~0.46 con confianza 0.2, frente a ~0.81 de YOLO) y su rendimiento se degrada de forma marcada en objetos pequeños, con un AP small de 0.20 frente a 0.58 en objetos grandes.
- 
-Estas conclusiones deben interpretarse con cautela, ya que los conjuntos de validación parecen distintos y los modelos se entrenaron con diferente número de epochs. Aun así, la consistencia de la ventaja de YOLO en todas las métricas y curvas analizadas apunta a que es el detector más adecuado para este problema. Una confirmación rigurosa requiere evaluar ambos modelos sobre un mismo split, tal y como se detalla a continuación.
- 
-### Limitaciones de la comparativa
- 
-- Los conjuntos de validación parecen distintos (1417 vs 978 instancias).
-- Distinto número de epochs y, probablemente, distintos hiperparámetros y tamaño de modelo.
-- Valores de curvas de entrenamiento leídos visualmente (aproximados).
-- Para una comparación rigurosa se recomienda evaluar ambos modelos sobre **el mismo split de validación/test**, con la misma resolución de entrada y umbral de IoU, y reportar también velocidad de inferencia (FPS/latencia) y tamaño del modelo.

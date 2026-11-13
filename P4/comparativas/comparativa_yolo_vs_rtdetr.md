@@ -196,8 +196,3 @@ En este caso se puede apreciar como  RT-DETR puede ofrecer un mejor rendimiento 
 | ![YOLO 1 (24)](<../resultados/YOLO/no_detectadas/1 (24).jpeg>) | ![RT-DETR 1 (24)](<../resultados/RTDETR/no_detectadas/1 (24).jpeg>) |
 
 Este es el único caso en el que ninguno de los dos modelos ha conseguido detectar las matrículas. Esto podría deberse a que las condiciones de la imagen no favorecen la detección, ya que ambas matrículas aparecen ligeramente difuminadas y una de ellas tiene un tamaño muy reducido.
-
-
----
-
-## 7. Conclusiones

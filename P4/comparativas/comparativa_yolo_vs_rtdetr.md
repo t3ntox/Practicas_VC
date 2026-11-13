@@ -20,7 +20,7 @@ Comparación de las métricas de validación de dos modelos entrenados para dete
 | Métrica | RT-DETR | YOLO | Diferencia (YOLO − RT-DETR) |
 |---|---:|---:|---:|
 | mAP@50 (PR curve) | 0.596 | 0.776 | +0.180 |
-| mAP@50 (último epoch, `results.png`) | ~0.588 | ~0.758 | +0.170 |
+| mAP@50 (último epoch) | ~0.588 | ~0.758 | +0.170 |
 | mAP@50 (mejor epoch) | ~0.600 | ~0.785 | +0.185 |
 | mAP@50-95 (último epoch) | ~0.307 | ~0.407 | +0.100 |
 | mAP@50-95 (mejor epoch) | ~0.312 | ~0.423 | +0.111  |

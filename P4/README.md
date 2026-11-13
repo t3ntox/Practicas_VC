@@ -54,7 +54,7 @@ Para ambos modelos se emplean los mismos pasos para el tratamiento del vídeo:
 
 Para todo este proceso se aplican; un sistema de votación para evitar la clasificación erronea de vehículos (como puede pasar con un SUV), un histórico de las detecciones para poder unificar sus id en caso de cambio a lo largo del track, y en el caso de las matrículas se exige un tamaño mínimo para su lectura junto a una discriminación en base al producto de la confianza del detector de matrículas y la confianza del modelo de lectura. 
 
-Únicamente para RT-DETR, con el objetivo de obtener un track lo más preciso posible, se emplean dos trackers distintos: uno para personas y otros para vehículos. Esta distinción, permite que el parámetro `lost_track_buffer` sea distinto ya que ambas clases se mueven en pantalla a velocidades muy distintas. Por ello, el tracker de las personas requiere un valor más alto, ya que sus oclusiones se prolongan más en el tiempo, para mantener el id durante el track. 
+Únicamente para RT-DETR, con el objetivo de obtener un track lo más preciso posible, se emplean dos trackers distintos: uno para personas y otros para vehículos. Esta distinción, permite que el parámetro `lost_track_buffer` sea distinto ya que ambas clases se mueven en pantalla a velocidades muy distintas. Por ello, el tracker de las personas requiere un valor más alto, ya que sus oclusiones se prolongan más en el tiempo, para mantener el id durante el track. Junto a ello, el uso de una confianza tan baja se debe a que permite delegar en los trackers el descarte de detecciones, permitiendo el seguimiento de elementos durante un mayor período de tiempo.
 
 Vídeos:
 - [Video YOLO PaddleOCR](./YOLO_PaddleOCR_result/resultado.mp4)

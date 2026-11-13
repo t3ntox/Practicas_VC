@@ -9,12 +9,10 @@ __include__: [
 
 output_dir: ./output/rtdetrv2_r18vd_120e_plate
 
-# Fine-tuning desde el checkpoint COCO; las capas de la cabeza de 80 clases se descartan solas
 tuning: ../../weights/rtdetrv2_r18vd_120e_coco_rerun_48.1.pth
 
 print_freq: 10          
-checkpoint_freq: 5     # best.pth y last.pth se guardan siempre
-
+checkpoint_freq: 5 
 
 PResNet:
   depth: 18
@@ -39,13 +37,13 @@ use_amp: True
 use_ema: True
 ema:
   type: ModelEMA
-  decay: 0.9995         # ventana de promedio adaptada a ~2300 iteraciones totales
+  decay: 0.9995    
   warmups: 200
 
 
 lr_warmup_scheduler:
   type: LinearWarmup
-  warmup_duration: 100   #Se reduce el calentamiento a 2 epocas para alcanzar el lr deseado en esas dos epocas
+  warmup_duration: 100 
 
 optimizer:
   type: AdamW
@@ -66,10 +64,10 @@ optimizer:
 
 train_dataloader:
   total_batch_size: 2
-  num_workers: 4        # si Windows da problemas de multiprocessing, bajar a 0
+  num_workers: 4        
   dataset:
     transforms:
-      ops:              # los del repo, sin RandomHorizontalFlip
+      ops:             
         - {type: RandomPhotometricDistort, p: 0.5}
         - {type: RandomZoomOut, fill: 0}
         - {type: RandomIoUCrop, p: 0.8}
@@ -79,9 +77,9 @@ train_dataloader:
         - {type: ConvertPILImage, dtype: 'float32', scale: True}
         - {type: ConvertBoxes, fmt: 'cxcywh', normalize: True}
       policy:
-        epoch: 47       # últimas 3 épocas sin aumentos (como 117/120 en el original)
+        epoch: 47      
   collate_fn:
-    scales: ~           # sin multiescala: siempre 640x640
+    scales: ~          
 
 val_dataloader:
   num_workers: 4

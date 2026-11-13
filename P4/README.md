@@ -5,7 +5,7 @@ En este directorio del repositorio encontrarán múltiples cuadernos jupyter cad
 - [`RT-DETR_PaddleOCR.ipynb`](./RT-DETR_PaddleOCR.ipynb), [`YOLO_PaddleOCR.ipynb`](./YOLO_PaddleOCR.ipynb) -> destinados a la evaluación del ocr clásico seleccionado, junto a su aplicación en el vídeo.
 - [`RT-DETR_VLM.ipynb`](./RT-DETR_VLM.ipynb), [`YOLO_VLM.ipynb`](./YOLO_VLM.ipynb) -> destinados a la evaluacion del VLM seleccionado, Hugging Face, junto a su aplicación en el vídeo.
 
-Todos los cuadernos, menos los dedicados al entrenamiento, dependen del archivo `utils_matrículas.py` que recoge todas las funciones comunes a los cuadernos para evitar la duplicidad en el código. 
+Todos los cuadernos, menos los dedicados al entrenamiento, dependen del archivo `utils_matrículas.py` que recoge todas las funciones comunes a los cuadernos para reducir la duplicidad en el código. 
 
 ### 👥 Autores:
 - [Enrique Sosa Ojeda](https://github.com/Enric1005)

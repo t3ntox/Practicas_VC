@@ -1,96 +1,176 @@
-# Comparativa de gráficas del detector de matrículas: YOLO vs RT-DETR
+# Comparativa RT-DETR vs YOLO: detección de matrículas (`plate`)
 
-## 1. Resumen de métricas
+Comparación de las métricas de validación de dos modelos entrenados para detectar una única clase (`plate`).
 
-| Métrica | YOLO | RT-DETR | Diferencia |
+## Resumen
+
+| Aspecto | RT-DETR | YOLO | Mejor |
 |---|---|---|---|
-| mAP@0.5 | **0.776** | 0.667 | +0,109 a favor de YOLO |
-| F1 máximo | **0.82** (conf 0.409) | 0.74 (conf 0.491) | +0,08 |
-| Recall máximo (conf ≈ 0) | **0.83** | 0.76 | +0,07 |
-| Precisión 1.00 alcanzada en conf | 0.841 | 0.950 | RT-DETR la alcanza con ~0,11 más de confianza |
-| Recall en matriz normalizada | **0.87** | 0.77 | +0,10 |
-| Falsos negativos (normalizado) | 0.13 | 0.23 | RT-DETR pierde 0,10 más (casi el doble) |
-| Verdaderos positivos (matriz absoluta) | 846 | 740 | YOLO +106 (RT-DETR detecta un 12,5 % menos) |
-| Falsos negativos (matriz absoluta) | 132 | 227 | RT-DETR +95 (un 72 % más de placas perdidas) |
-| Falsos positivos (matriz absoluta) | 9 772 | 119 260 | RT-DETR ~12,2 veces más (+109 488) |
-| Placas anotadas (TP + FN) | 978 | 967 | 11 de diferencia entre conjuntos |
+| mAP@50 (curva PR) | 0.596 | **0.776** | YOLO |
+| mAP@50-95 (último epoch) | ~0.307 | **~0.407** | YOLO |
+| F1 máximo | 0.69 | **0.82** | YOLO |
+| Recall máximo | 0.72 | **0.83** | YOLO |
+| Epochs entrenados | 50 | 24 | — |
 
-## 2. Análisis por gráfica
 
-### 2.1 Curva F1-Confianza
+---
 
-| YOLO | RT-DETR |
-|---|---|
-| ![F1 YOLO](../YOLO_resultados_entrenamiento/BoxF1_curve.png) | ![F1 RT-DETR](../RT-DETR_resultado_entrenamiento/F1_curve.png) |
+## 1. Métricas de validación globales
 
-- **YOLO**: sube rápido y forma una meseta muy ancha, con F1 ≈ 0.80 o más entre conf ~0.3 y ~0.6. El máximo (0.82) está en 0.409 y cae con fuerza a partir de ~0.65.
-- **RT-DETR**: forma de cúpula más estrecha, con máximo 0.74 en 0.491. Por encima de 0.7 solo entre conf ~0.35 y ~0.68, y llega a cero cerca de 0.93.
+| Métrica | RT-DETR | YOLO | Diferencia (YOLO − RT-DETR) |
+|---|---:|---:|---:|
+| mAP@50 (PR curve) | 0.596 | 0.776 | +0.180 |
+| mAP@50 (último epoch, `results.png`) | ~0.588 | ~0.758 | +0.170 |
+| mAP@50 (mejor epoch) | ~0.600 | ~0.785 | +0.185 |
+| mAP@50-95 (último epoch) | ~0.307 | ~0.407 | +0.100 |
+| mAP@50-95 (mejor epoch) | ~0.312 | ~0.423 | +0.111  |
 
-YOLO mantiene un F1 alto en un rango de umbrales más amplio; el de RT-DETR es más sensible al umbral y su máximo es más bajo.
+Los datos que componen esta tabla, muestran una ventaja clara y consistente de YOLO frente a RT-DETR en todas las métricas de detección evaluadas: YOLO supera a RT-DETR por aproximadamente 18 puntos porcentuales en mAP@50 y por 10–11 puntos en mAP@50-95 ).  Esta diferencia indica que YOLO no solo detecta más objetos con mayor confianza a un umbral de IoU de 0.50, sino que también localiza las cajas con mayor precisión a umbrales más estrictos. 
+Además, la diferencia se mantiene prácticamente constante tanto en el último epoch como en el mejor epoch, lo que sugiere que no es una fluctuación puntual del entrenamiento, sino una ventaja estructural del modelo YOLO en este conjunto de datos y configuración. 
 
-### 2.2 Curva Precisión-Confianza
 
-| YOLO | RT-DETR |
-|---|---|
-| ![Precisión YOLO](../YOLO_resultados_entrenamiento/BoxP_curve.png) | ![Precisión RT-DETR](../RT-DETR_resultado_entrenamiento/P_curve.png) |
+---
 
-- **YOLO**: precisión ~0.8 con conf 0.2, ~0.9 con 0.4 y ~0.94 con 0.65. Llega a 1.00 en 0.841.
-- **RT-DETR**: sube más despacio, con ~0.5 en conf 0.2, ~0.8 en 0.45 y ~0.9 en 0.7. Llega a 1.00 solo en 0.950, con picos ruidosos en la clase `plate` cerca de 0.9.
+## 2. Curvas de confianza
 
-A umbrales bajos las confianzas de RT-DETR están peor calibradas: alcanza la precisión que YOLO tiene con umbrales mucho menores solo con confianzas bastante más altas.
+| Curva | RT-DETR | YOLO |
+|---|---:|---:|
+| **F1 máximo** | 0.7 y conf 0.4 | 0.8 y conf 0.4 |
+| **Precision = 1.00** a partir de conf | 0.94 | 0.84 |
+| **Recall máximo** (conf ≈ 0) | 0.72 | 0.83 |
 
-### 2.3 Curva Recall-Confianza
+### Gráficas
 
-| YOLO | RT-DETR |
-|---|---|
-| ![Recall YOLO](../YOLO_resultados_entrenamiento/BoxR_curve.png) | ![Recall RT-DETR](../RT-DETR_resultado_entrenamiento/R_curve.png) |
+**F1-Confianza**
 
-- **YOLO**: parte de 0.83, baja suavemente a ~0.77 en conf 0.2 y ~0.70 en 0.6, y colapsa entre 0.7 y 0.85.
-- **RT-DETR**: parte de 0.76, baja a ~0.73 en 0.2 y ~0.63 en 0.6, y colapsa entre 0.8 y 0.92.
+| RT-DETR | YOLO |
+|:---:|:---:|
+| ![F1 RT-DETR](../RT-DETR_resultado_entrenamiento/F1_curve.png) | ![F1 YOLO](../YOLO_resultados_entrenamiento/BoxF1_curve.png) |
 
-RT-DETR genera confianzas más altas (su curva se desplaza a la derecha), pero con menos recall en todo el rango.
+**Precision-Confianza**
 
-### 2.4 Curva Precisión-Recall
+| RT-DETR | YOLO |
+|:---:|:---:|
+| ![Precision RT-DETR](../RT-DETR_resultado_entrenamiento/P_curve.png) | ![Precision YOLO](../YOLO_resultados_entrenamiento/BoxP_curve.png) |
 
-| YOLO | RT-DETR |
-|---|---|
-| ![PR YOLO](../YOLO_resultados_entrenamiento/BoxPR_curve.png) | ![PR RT-DETR](../RT-DETR_resultado_entrenamiento/PR_curve.png) |
+**Recall-Confianza**
 
-- **YOLO** (mAP50 0.776): precisión ~0.99 → ~0.94 hasta recall ~0.7 y caída brusca entre 0.77 y 0.85, donde termina.
-- **RT-DETR** (mAP50 0.667): precisión ~0.95 → ~0.90 hasta recall ~0.6 y caída brusca en torno a 0.70-0.76, donde termina.
+| RT-DETR | YOLO |
+|:---:|:---:|
+| ![Recall RT-DETR](../RT-DETR_resultado_entrenamiento/R_curve.png) | ![Recall YOLO](../YOLO_resultados_entrenamiento/BoxR_curve.png) |
 
-La curva de YOLO envuelve a la de RT-DETR: es más alta (mejor precisión) y llega más lejos (mayor recall máximo), de ahí los 0,109 de diferencia en mAP50.
+### Precision en puntos concretos (aprox.)
 
-### 2.5 Matrices de confusión
+| Confianza | RT-DETR | YOLO |
+|---:|---:|---:|
+| 0.2 | ~0.46 | ~0.81 |
+| 0.4 | ~0.78 | ~0.90 |
+| 0.6 | ~0.86 | ~0.93 |
+| 0.8 | ~0.90 | ~0.99 |
 
-| | YOLO | RT-DETR |
+### Recall en puntos concretos (aprox.)
+
+| Confianza | RT-DETR | YOLO |
+|---:|---:|---:|
+| 0.0 | 0.72 | 0.83 |
+| 0.2 | ~0.67 | ~0.77 |
+| 0.4 | ~0.61 | ~0.75 |
+| 0.6 | ~0.53 | ~0.65 |
+| 0.8 | ~0.20 | ~0.10 |
+
+Las curvas de F1, precisión y recall muestran que YOLO ofrece un mejor rendimiento que RT-DETR en esta evaluación: aunque ambos alcanzan su F1 óptimo con un umbral de confianza prácticamente idéntico, cercano a 0.4, YOLO obtiene un máximo de 0.8 frente a 0.7 y mantiene valores elevados en un intervalo más amplio, lo que evidencia menor sensibilidad a la elección del umbral. 
+Esta ventaja también se observa en los umbrales medios: con una confianza de aproximadamente 0.4, YOLO alcanza una precisión de 0.9 aproximadamente y un recall de 0.75, frente a 0.78 y 0.61 de RT-DETR, respectivamente. Por tanto, YOLO combina una mayor proporción de detecciones correctas con una mayor recuperación de objetos.  
+Aunque ambos modelos llegan a una precisión de 1.00 con umbrales elevados, 0.8 en YOLO y más de 0.8 en RT-DET, este resultado coincide con un recall muy reducido y no representa el mejor equilibrio de funcionamiento. En conjunto, YOLO presenta una relación más favorable entre precisión y recall, mientras que el umbral cercano a 0.41 constituye un punto de partida para ambos modelos si el objetivo es maximizar el F1 en este conjunto de validación.
+
+---
+
+## 3. Curva Precision-Recall
+
+| RT-DETR | YOLO |
+|:---:|:---:|
+| ![PR RT-DETR](../RT-DETR_resultado_entrenamiento/PR_curve.png) | ![PR YOLO](../YOLO_resultados_entrenamiento/BoxPR_curve.png) |
+
+| | RT-DETR | YOLO |
+|---|---:|---:|
+| mAP@50 | 0.6 | 0.78 |
+| Recall donde la precisión cae por debajo de 0.8 | ~0.58 | ~0.77 |
+| Recall máximo alcanzado | ~0.72 | ~0.85 |
+| Precisión en la zona plana (recall 0.2–0.5) | ~0.90 | ~0.94–0.98 |
+
+Estas curvas precisión-recall muestran que YOLO mantiene una mayor precisión para niveles comparables de recall y alcanza un mAP@50 de 0.78, frente a 0.6 de RT-DETR, una diferencia de 18 puntos porcentuales. Esto implica que, en esta evaluación, YOLO puede recuperar más matrículas manteniendo un nivel de precisión similar, por lo que su ventaja no depende únicamente de elegir un umbral de confianza concreto. Por ejemplo, YOLO mantiene una precisión de al menos 0.8 hasta un recall cercano a 0.77, mientras que RT-DETR desciende por debajo de ese nivel alrededor de 0.58, esto supone recuperar aproximadamente un 77% de los objetos frente a un 58%, manteniendo en ambos casos cerca de un 80% de detecciones correctas. 
+
+
+---
+
+## 4. Matriz de confusión
+
+### Gráficas
+
+**Matriz de confusión (normalizada)**
+
+| RT-DETR | YOLO |
+|:---:|:---:|
+| ![Confusion norm RT-DETR](../RT-DETR_resultado_entrenamiento/confusion_matrix_normalized.png) | ![Confusion norm YOLO](../YOLO_resultados_entrenamiento/confusion_matrix_normalized.png) |
+
+### Normalizada (por columna, clase real)
+
+| | RT-DETR | YOLO |
+|---|---:|---:|
+| Plate detectada correctamente (TP rate / recall) | 0.72 | **0.87** |
+| Plate no detectada (predicha como background, FN rate) | 0.28 | **0.13** |
+| Background predicho como plate (FP) | 1.00 | 1.00 |
+
+Dado que el conjunto utilizado para generar cada matriz es distinto, se presentan las versiones normalizadas, lo que permite compararlas. El valor de FP = 1.00 se debe a que, en el cálculo de la matriz, los verdaderos negativos no se contabilizan: la fila/columna de la clase “fondo” solo contiene falsos positivos, por lo que al normalizarla todo su contenido queda en 1.00. Este valor es un artefacto de la normalización y no refleja el rendimiento del modelo.
+Dichas matrices normalizadas muestran que YOLO detecta correctamente el 87% de las placas reales, frente al 72% de RT-DETR. Esto implica que, por cada 100 placas reales, YOLO detectaría aproximadamente 87 y omitiría 13, mientras que RT-DETR detectaría 72 y omitiría 28; por tanto, YOLO reduce las omisiones en aproximadamente un 54% respecto a RT-DETR, una ventaja relevante cuando se busca evitar que las placas pasen inadvertidas. 
+
+
+
+## 5. Evolución durante el entrenamiento
+
+**RT-DETR**
+
+![Resultados RT-DETR](../RT-DETR_resultado_entrenamiento/results.png)
+
+**YOLO**
+
+![Resultados YOLO](../YOLO_resultados_entrenamiento/results.png)
+
+| | RT-DETR | YOLO |
 |---|---|---|
-| Absoluta | ![Matriz YOLO](../YOLO_resultados_entrenamiento/confusion_matrix.png) | ![Matriz RT-DETR](../RT-DETR_resultado_entrenamiento/confusion_matrix.png) |
-| Normalizada | ![Matriz normalizada YOLO](../YOLO_resultados_entrenamiento/confusion_matrix_normalized.png) | ![Matriz normalizada RT-DETR](../RT-DETR_resultado_entrenamiento/confusion_matrix_normalized.png) |
+| Epochs | 50 | 24 |
+| Pico de mAP@50 | ~0.60 (epoch ~25–30) | ~0.785 (epochs 11 y 17) |
+| Pico de mAP@50-95 | ~0.312 (epoch ~20) | ~0.423 (epoch 13) |
+| Tendencia final de mAP@50 | Ligero descenso (0.60 → 0.588) | Estable con oscilaciones (0.77 ± 0.01) |
+| Estabilidad entre epochs | Estable | Oscilaciones notables (±0.02 en mAP@50) |
 
-| | YOLO | RT-DETR |
-|---|---|---|
-| Recall (placa detectada) | 0.87 | 0.77 |
-| Placas perdidas (FN) | 132 (13 %) | 227 (23 %) |
-| Falsos positivos | 9 772 | 119 260 |
-| Ratio FP / TP | ~11,6 | ~161 |
+En cuanto a la evolución del entrenamiento, se observa un comportamiento diferente entre ambos modelos.  Por un lado, RT-DETR alcanza su meseta de rendimiento aproximadamente en el epoch 20, a partir del cual sus métricas de detección dejan de mejorar y experimentan un ligero deterioro, a pesar de que las pérdidas de entrenamiento continúan disminuyendo. En concreto, la GIoU Loss desciende de aproximadamente 1,45 a 0,53 y la L1 Loss de 0,37 a 0,085, mientras que la VFL Loss presenta una tendencia ligeramente ascendente. Este comportamiento podría indicar un posible sobreajuste. 
+Por otro lado, YOLO muestra una convergencia considerablemente más rápida, concentrando la mayor parte de la mejora durante las primeras 10 épocas y manteniendo posteriormente valores de mAP relativamente estables, aunque con ciertas oscilaciones entre iteraciones. Estas fluctuaciones sugieren que el entrenamiento podría beneficiarse de un ajuste progresivo del learning rate durante las últimas épocas. En conjunto, YOLO destaca por alcanzar un rendimiento superior en un menor número de épocas, mientras que RT-DETR necesita más iteraciones y presenta indicios de estancamiento en las fases finales del entrenamiento. 
 
-Los falsos positivos son muy altos en ambos modelos. Esto indica que las matrices se calcularon con un umbral de confianza muy bajo. RT-DETR produce una cantidad fija de predicciones por imagen, lo que explica en parte que se dispare tanto. Por ello las matrices sirven para comparar el recall de ambos modelos, no su precisión en uso.
+### Otras métricas exclusivas de RT-DETR
 
-## 3. Comportamiento en los cuadernos de OCR
+| Métrica | Valor aprox. (último epoch) |
+|---|---:|
+| AP75 | 0.29 |
+| AR@100 | 0.42 |
+| AP small | 0.20 |
+| AP medium | 0.47 |
+| AP large | 0.58 |
 
-| Detector | Umbral óptimo F1 (gráficas) | Umbrales usados en los cuadernos |
-|---|---|---|
-| YOLO | 0.409 | Evaluación 0.25; vídeo `CONF_PLACA` 0.4 |
-| RT-DETR | 0.491 | Evaluación 0.35 (PaddleOCR) y 0.25 (VLM); vídeo `PLATE_CONF` 0.3 |
+En cuanto a las métricas adicionales de RT-DETR, se observa que el modelo presenta un comportamiento condicionado por el tamaño de los objetos detectados. El AP75 alcanza un valor aproximado de 0,29, lo que refleja un rendimiento más limitado cuando se exige un mayor grado de solapamiento entre las cajas predichas y las anotadas. Al analizar el rendimiento según el tamaño de los objetos, se aprecia una diferencia considerable: el AP para objetos pequeños alcanza únicamente 0,20, mientras que para objetos medianos aumenta hasta 0,47 y para objetos grandes llega a 0,58. Esto evidencia que el modelo RT-DETR entrenado, presenta mayores dificultades para localizar objetos de dimensiones reducidas, obteniendo resultados progresivamente mejores a medida que aumenta su tamaño.
 
-- En vídeo, YOLO trabaja casi en su umbral óptimo (0.4 frente a 0.409).
-- RT-DETR trabaja por debajo de su umbral óptimo en todos los casos. Es coherente con la comparativa de evaluación con PaddleOCR, donde RT-DETR produjo muchos más falsos positivos geométricos (278 con conf 0.35, frente a 108 de YOLO con conf 0.25) localizando el mismo número de placas (188/407).
-- A igual umbral (0.25) en la evaluación con el VLM, RT-DETR generó 613 detecciones frente a 367 de YOLO y encontró menos placas (182 frente a 188 de 407), en línea con su menor recall y su menor precisión a umbrales bajos.
+---
 
-## 4. Conclusiones
+## 6. Conclusiones
 
-1. **YOLO supera a RT-DETR en todas las métricas de detección**: mAP50 (+0,109), F1 (+0,08), recall (+0,07 a +0,10) y menos placas perdidas (13 % frente a 23 %).
-2. **YOLO es más robusto al umbral**: meseta de F1 más ancha y mejor calibración de la confianza.
-3. **RT-DETR alcanza su mejor F1 con umbrales más altos** (~0.5) y sus detecciones de alta confianza son fiables solo por encima de ~0.9.
-4. **RT-DETR genera muchos más falsos positivos** que YOLO (~12,2 veces más en la matriz absoluta) y pierde más placas (+72 %).
+1. **YOLO supera a RT-DETR en todas las métricas comparables**: +0.18 en mAP@50, +0.10 en mAP@50-95, +0.13 en F1 máximo y +0.11 en recall máximo.
+2. Ambos modelos comparten un **umbral óptimo de confianza ≈ 0.41**.
+3. YOLO es **más robusto al umbral** (curva F1 amplia) y detecta más matrículas reales (recall normalizado 0.87 vs 0.72).
+4. RT-DETR tiene un nivel alto de **falsos positivos** a umbrales bajos y su rendimiento se degrada más en objetos pequeños.
+5. YOLO requirió menos de la mitad de epochs (24 vs 50) para obtener mejores resultados.
+
+### Limitaciones de la comparativa
+
+- Los conjuntos de validación parecen distintos (1417 vs 978 instancias).
+- Distinto número de epochs y, probablemente, distintos hiperparámetros y tamaño de modelo.
+- Valores de curvas de entrenamiento leídos visualmente (aproximados).
+- Para una comparación rigurosa se recomienda evaluar ambos modelos sobre **el mismo split de validación/test**, con la misma resolución de entrada y umbral de IoU, y reportar también velocidad de inferencia (FPS/latencia) y tamaño del modelo.

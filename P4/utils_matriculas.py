@@ -1,12 +1,3 @@
-"""
-Funciones comunes de los cuadernos de detección y lectura de matrículas
-(YOLO / RT-DETR  +  PaddleOCR / PaddleOCR-VL).
-
-Los parámetros que en los cuadernos eran variables globales (DEVICE, fps,
-modelos...) ahora se pasan como argumentos. Las librerías pesadas se importan
-dentro de cada función, así que el módulo se puede importar sin tener
-instaladas todas las dependencias.
-"""
 import csv
 import json
 import math
@@ -16,6 +7,11 @@ from time import perf_counter
 import cv2
 import numpy as np
 from PIL import Image
+from pathlib import Path
+import torch
+import os
+from collections import defaultdict, deque
+
 
 # =====================================================
 # CONSTANTES
@@ -136,7 +132,6 @@ def recortar(img, box, pad=0.05, margen_px=None):
 
 def cargar_gt(img_path, w, h, anotaciones_dir, gt_keys=GT_KEYS):
     """Carga cajas (xyxy en píxeles) y textos anotados desde el JSON de la imagen."""
-    from pathlib import Path
     ruta = Path(anotaciones_dir) / f"{Path(img_path).stem}.json"
     if not ruta.exists():
         return []
@@ -149,33 +144,30 @@ def cargar_gt(img_path, w, h, anotaciones_dir, gt_keys=GT_KEYS):
     return gts
 
 
-def resumen_metricas(nombre, rows, col="ocr"):
-    """Imprime exact match y acierto por carácter (1 - min(1, lev/len))."""
+def resumen_metricas(nombre, rows, col="ocr_crudo"):
+    """Imprime exact match, acierto por carácter (1 - min(1, lev/len)) y tiempos de lectura."""
     rows = [r for r in rows if r["gt"]]
     if not rows:
         return
     exact = np.mean([r["gt"] == r[col] for r in rows])
     acc_car = np.mean([1 - min(1, lev(r["gt"], r[col]) / max(len(r["gt"]), 1)) for r in rows])
-    print(f"{nombre:<34} n={len(rows):<5} exact match={exact:.3f} | acierto por carácter={acc_car:.3f}")
+    ms = [r["ms"] for r in rows]
+    print(f"{nombre:<38} n={len(rows):<5} exact match={exact:.3f} | por carácter={acc_car:.3f} | "
+          f"{np.mean(ms):.0f} ms de media ({np.median(ms):.0f} de mediana)")
 
 
 def evaluar_dataset(lista_imagenes, detectar, leer_placa, cargar_gt, salida, dir_errores,
                     csv_nombre, etiqueta, iou_match=0.5, pad=0.05, gt_keys=GT_KEYS, delimiter=";"):
-    """Evalúa OCR en detecciones del detector y en recortes anotados (techo OCR),
-    midiendo tiempos por detección con perf_counter.
-
-    detectar(img_bgr) -> lista de (caja_xyxy, confianza)   (cambia entre YOLO y RT-DETR)
-    leer_placa(recorte) -> (texto, confianza)
-    cargar_gt(img_path, w, h) -> lista de (caja, texto)
-    salida: Path de la carpeta de resultados | dir_errores: subcarpeta de recortes mal leídos
-    csv_nombre: nombre del CSV | etiqueta: nombre del detector para los mensajes ("YOLO", "RT-DETR")
-    """
+    """Evalúa detector + OCR sobre imágenes anotadas. Función única para todos los cuadernos."""
     from pathlib import Path
     salida = Path(salida)
+    (salida / dir_errores).mkdir(parents=True, exist_ok=True)
+
+    # Calentamiento: la primera lectura (sobre todo con VLM) es notablemente más lenta
+    leer_cronometrado(np.zeros((30, 100, 3), np.uint8), leer_placa)
+
     filas = []
     n_gt = n_gt_texto = n_detectadas = 0
-    tiempos_ocr_det = []
-    tiempos_ocr_gt = []
     falsos_positivos_geom = 0
     detecciones_en_gt_sin_texto = 0
 
@@ -188,48 +180,40 @@ def evaluar_dataset(lista_imagenes, detectar, leer_placa, cargar_gt, salida, dir
         n_gt += len(gts)
         n_gt_texto += sum(t is not None for _, t in gts)
 
-        # Inferencia de detección de placas
         preds = detectar(img)
         n_detectadas += len(preds)
 
-        # OCR a partir de las detecciones del detector
+        # 1) OCR sobre las detecciones (se descartan ANTES de leer las que no sirven)
         for box, det_conf in preds:
-            t_ini_det = perf_counter()
-            rec = recortar(img, box, pad=pad)
-            texto, ocr_conf = leer_placa(rec)
-            tiempos_ocr_det.append(perf_counter() - t_ini_det)
-
             mejor_iou, gt_txt = 0.0, None
             for gbox, gtxt in gts:
                 v = iou(box, gbox)
                 if v > mejor_iou:
                     mejor_iou, gt_txt = v, gtxt
 
-            # Análisis de emparejamiento con el Ground Truth
             if mejor_iou < iou_match:
                 falsos_positivos_geom += 1
                 continue
-            elif gt_txt is None or gt_txt == "NONE":
+            if gt_txt is None or gt_txt == "NONE":
                 detecciones_en_gt_sin_texto += 1
                 continue
 
-            filas.append(dict(imagen=img_path.name, origen="deteccion", gt=gt_txt, ocr=texto,
-                              det_conf=round(det_conf, 3), ocr_conf=round(ocr_conf, 3),
-                              iou=round(mejor_iou, 3)))
-            if gt_txt != texto and rec.size > 0:
-                cv2.imwrite(str(salida / dir_errores / f"{len(filas):05d}_gt-{gt_txt}_ocr-{texto}.jpg"), rec)
+            rec = recortar(img, box, pad=pad)
+            cruda, corregida, ms = leer_cronometrado(rec, leer_placa)
+            filas.append(dict(imagen=img_path.name, origen="deteccion", gt=gt_txt,
+                              ocr_crudo=cruda, ocr_corregido=corregida, ms=round(ms, 1),
+                              det_conf=round(det_conf, 3), iou=round(mejor_iou, 3)))
+            if gt_txt != cruda and rec.size > 0:
+                cv2.imwrite(str(salida / dir_errores / f"{len(filas):05d}_gt-{gt_txt}_ocr-{cruda}.jpg"), rec)
 
-        # 2) OCR a partir del recorte de la anotación = techo del OCR
+        # 2) Techo del OCR: recorte exacto de la anotación (sin depender del detector)
         for gbox, gtxt in gts:
             if gtxt is None or gtxt == "NONE":
                 continue
-            t_ini_gt = perf_counter()
-            rec_gt = recortar(img, gbox, pad=pad)
-            texto, ocr_conf = leer_placa(rec_gt)
-            tiempos_ocr_gt.append(perf_counter() - t_ini_gt)
-
-            filas.append(dict(imagen=img_path.name, origen="gt_recorte", gt=gtxt, ocr=texto,
-                              det_conf=None, ocr_conf=round(ocr_conf, 3), iou=1.0))
+            cruda, corregida, ms = leer_cronometrado(recortar(img, gbox, pad=pad), leer_placa)
+            filas.append(dict(imagen=img_path.name, origen="gt_recorte", gt=gtxt,
+                              ocr_crudo=cruda, ocr_corregido=corregida, ms=round(ms, 1),
+                              det_conf=None, iou=1.0))
 
     # Guardar resultados en CSV
     csv_path = salida / csv_nombre
@@ -238,28 +222,241 @@ def evaluar_dataset(lista_imagenes, detectar, leer_placa, cargar_gt, salida, dir
         wr.writeheader()
         wr.writerows(filas)
 
-    # Métricas de tiempo medio de ejecución por detección (extra)
-    tiempo_medio_ocr_det = (np.mean(tiempos_ocr_det) * 1000) if tiempos_ocr_det else 0.0
-    tiempo_medio_ocr_gt = (np.mean(tiempos_ocr_gt) * 1000) if tiempos_ocr_gt else 0.0
-
-    print(f"\nImágenes evaluadas: {len(lista_imagenes)} | placas anotadas: {n_gt} (con texto: {n_gt_texto}) | detecciones {etiqueta}: {n_detectadas}")
-    print("--- TIEMPOS MEDIOS DE LECTURA POR DETECCIÓN (perf_counter) ---")
-    print(f"OCR a partir de detección {etiqueta}:     {tiempo_medio_ocr_det:6.2f} ms / detección")
-    print(f"OCR a partir de recorte GT (techo): {tiempo_medio_ocr_gt:6.2f} ms / recorte anotado")
+    print(f"\nImágenes evaluadas: {len(lista_imagenes)} | placas anotadas: {n_gt} (con texto: {n_gt_texto}) "
+          f"| detecciones {etiqueta}: {n_detectadas}")
 
     if n_gt_texto == 0:
         print(f"\nLas anotaciones no contienen texto de matrícula (claves probadas: {gt_keys}).")
     else:
-        print("\n--- RESUMEN DE EXACTITUD OCR ---")
-        resumen_metricas(f"OCR sobre detecciones de {etiqueta}", [r for r in filas if r["origen"] == "deteccion"])
-        resumen_metricas("OCR sobre recorte anotado (techo)", [r for r in filas if r["origen"] == "gt_recorte"])
-        emp = sum(1 for r in filas if r["origen"] == "deteccion" and r["gt"])
-        print(f"Placas evaluadas encontradas por {etiqueta}: {emp}/{n_gt_texto}")
+        det = [r for r in filas if r["origen"] == "deteccion"]
+        techo = [r for r in filas if r["origen"] == "gt_recorte"]
+        print("\n--- RESUMEN DE EXACTITUD OCR (lectura cruda) ---")
+        resumen_metricas(f"OCR sobre detecciones de {etiqueta}", det, "ocr_crudo")
+        resumen_metricas("OCR sobre recorte anotado (techo)", techo, "ocr_crudo")
+        print("\n--- CON CORRECCIÓN POR POSICIÓN ---")
+        resumen_metricas(f"OCR + corrección, detecciones {etiqueta}", det, "ocr_corregido")
+        resumen_metricas("OCR + corrección, recorte anotado", techo, "ocr_corregido")
+        print(f"\nPlacas evaluadas encontradas por {etiqueta}: {len(det)}/{n_gt_texto}")
         print(f"Falsos positivos geométricos (IoU < {iou_match}): {falsos_positivos_geom}")
         print(f"Detecciones en placas anotadas sin texto (None): {detecciones_en_gt_sin_texto}")
 
     print(f"\nCSV: {csv_path}\nRecortes con error: {salida / dir_errores}")
     return filas
+
+def evaluar_detector(detector, imagenes_dir, anotaciones_dir, salida_dir, leer_ocr,nombre_modelo="MODELO",
+                    max_imagenes=None, iou_match=0.5, pad=0.05, limpiar_salida=False):
+    imagenes_dir = Path(imagenes_dir)
+    anotaciones_dir = Path(anotaciones_dir)
+    salida_dir = Path(salida_dir)
+
+    detectadas_dir = salida_dir / "detectadas"
+    no_detectadas_dir = salida_dir / "no_detectadas"
+
+    detectadas_dir.mkdir(parents=True, exist_ok=True)
+    no_detectadas_dir.mkdir(parents=True, exist_ok=True)
+
+    #Se limpian resultados anteriores en caso de así quererlo
+    if limpiar_salida:
+        for carpeta in [detectadas_dir, no_detectadas_dir]:
+            for archivo in carpeta.iterdir():
+                if archivo.is_file():
+                    archivo.unlink()
+
+    if not imagenes_dir.exists():
+        raise FileNotFoundError(imagenes_dir.resolve())
+
+    if not anotaciones_dir.exists():
+        raise FileNotFoundError(anotaciones_dir.resolve())
+
+
+    extensiones = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
+
+    lista_imagenes = sorted(
+        p for p in imagenes_dir.iterdir()
+        if p.is_file() and p.suffix.lower() in extensiones
+    )
+
+    if max_imagenes is not None:
+        lista_imagenes = lista_imagenes[:max_imagenes]
+
+    if not lista_imagenes:
+        raise ValueError("No se encontraron imágenes.")
+
+    print(f"\nModelo: {nombre_modelo}")
+    print(f"Imágenes: {len(lista_imagenes)}")
+
+
+    filas = []
+    total_gt = 0
+    total_detectadas = 0
+    total_no_detectadas = 0
+    total_sin_anotacion = 0
+    tiempos_ocr = []
+
+    for indice, img_path in enumerate(lista_imagenes, 1):
+        img = cv2.imread(str(img_path))
+        if img is None:
+            print(f"No se pudo cargar: {img_path.name}")
+            continue
+
+        h, w = img.shape[:2]
+        gts = cargar_gt(img_path, w, h, anotaciones_dir)
+        if gts is None:
+            gts = []
+
+        gts_validos = [(box, texto) for box, texto in gts if texto is not None and texto != "NONE"]
+        if not gts_validos:
+            total_sin_anotacion += 1
+            continue
+
+        total_gt += len(gts_validos)
+
+
+        predicciones = detector(img)
+        candidatos = []
+        for gi, (gt_box, gt_texto) in enumerate(gts_validos):
+            for pi, (pred_box, conf) in enumerate(predicciones):
+                valor_iou = iou(pred_box, gt_box)
+
+                if valor_iou >= iou_match:
+                    candidatos.append((valor_iou, gi, pi, pred_box, conf))
+
+        candidatos.sort(
+            key=lambda x: x[0],
+            reverse=True
+        )
+        asignaciones = {}
+        predicciones_usadas = set()
+
+        for valor_iou, gi, pi, pred_box, conf in candidatos:
+            if (gi not in asignaciones) and (pi not in predicciones_usadas):
+                asignaciones[gi] = (valor_iou, pred_box, conf)
+                predicciones_usadas.add(pi)
+
+        # Una única copia por imagen.
+        # Así podemos dibujar varias matrículas sin sobrescribirlas.
+        img_marcada = img.copy()
+        fallos_imagen = 0
+        aciertos_imagen = 0
+
+        for gi, (gt_box, gt_texto) in enumerate(gts_validos):
+            if gi not in asignaciones:
+                total_no_detectadas += 1
+                fallos_imagen += 1
+                filas.append({
+                    "imagen": img_path.name,
+                    "gt": gt_texto,
+                    "ocr_crudo": "",
+                    "ocr_corregido": "",
+                    "iou": 0,
+                    "confianza": "",
+                    "tiempo_ms": "",
+                    "resultado": "no_detectada"
+                })
+                continue
+
+            mejor_iou, pred_box, conf = asignaciones[gi]
+            total_detectadas += 1
+            aciertos_imagen += 1
+
+            recorte = recortar(img, pred_box, pad=pad)
+            cruda = ""
+            corregida = ""
+            ms = 0
+            if recorte is not None and recorte.size > 0:
+                cruda, corregida, ms = leer_cronometrado(recorte, leer_ocr)
+                tiempos_ocr.append(ms)
+
+            x1, y1, x2, y2 = map(int, pred_box)
+            cv2.rectangle(img_marcada, (x1, y1), (x2, y2), (0, 255, 0), 3)
+            etiqueta = corregida if corregida else "Sin lectura"
+            cv2.putText(img_marcada, etiqueta, (x1, max(25, y1 - 10)), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+
+            filas.append({
+                "imagen": img_path.name,
+                "gt": gt_texto,
+                "ocr_crudo": cruda,
+                "ocr_corregido": corregida,
+                "iou": round(float(mejor_iou), 3),
+                "confianza": round(float(conf), 3),
+                "tiempo_ms": round(float(ms), 1),
+                "resultado": "detectada"
+            })
+
+        if aciertos_imagen > 0:
+            cv2.imwrite(str(detectadas_dir / img_path.name), img_marcada)
+
+        # Si falta alguna matrícula, guardar también
+        # la fotografía original en no_detectadas.
+        if fallos_imagen > 0:
+            cv2.imwrite(
+                str(no_detectadas_dir / img_path.name),
+                img
+            )
+        print(
+            f"[{indice}/{len(lista_imagenes)}] "
+            f"{img_path.name} | "
+            f"GT: {len(gts_validos)} | "
+            f"Detectadas: {aciertos_imagen} | "
+            f"Fallos: {fallos_imagen}"
+        )
+
+    csv_salida = salida_dir / "resultados.csv"
+    campos = ["imagen", "gt", "ocr_crudo", "ocr_corregido", "iou", "confianza", "tiempo_ms", "resultado"]
+
+    with open(csv_salida, "w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=campos, delimiter=";")
+        writer.writeheader()
+        writer.writerows(filas)
+
+    filas_ocr = [
+        r for r in filas
+        if r["resultado"] == "detectada"
+    ]
+
+    def mostrar_metricas(titulo, columna):
+        if not filas_ocr:
+            print(f"{titulo}: sin datos")
+            return
+
+        exacto = np.mean([ norm(str(r["gt"])) == norm(str(r[columna])) for r in filas_ocr])
+        por_caracter = np.mean([1 - min(1,lev(norm(str(r["gt"])), norm(str(r[columna]))) / max(len(norm(str(r["gt"]))), 1)) for r in filas_ocr])
+
+        print(f"{titulo}: Exact match={exacto:.3f} | Por caracter={por_caracter:.3f}"
+        )
+
+    print("\n" + "=" * 60)
+    print(f"RESUMEN: {nombre_modelo}")
+    print("=" * 60)
+    print(f"Imágenes procesadas: {len(lista_imagenes)}")
+    print(f"Imágenes sin anotación: {total_sin_anotacion}")
+    print(f"GT total: {total_gt}")
+    print(f"Detectadas: {total_detectadas}")
+    print(f"No detectadas: {total_no_detectadas}")
+
+    if total_gt:
+        print(f"Recall detección: {total_detectadas / total_gt * 100:.2f}%")
+
+    mostrar_metricas("OCR crudo", "ocr_crudo")
+    mostrar_metricas("OCR corregido", "ocr_corregido")
+
+    if tiempos_ocr:
+        print(f"Tiempo medio OCR: {np.mean(tiempos_ocr):.1f} ms")
+        print(f"Mediana OCR: {np.median(tiempos_ocr):.1f} ms")
+
+    print(f"\nResultados: {salida_dir.resolve()}")
+    print(f"CSV: {csv_salida}")
+    print("EVALUACIÓN FINALIZADA")
+    return {
+        "filas": filas,
+        "total_gt": total_gt,
+        "detectadas": total_detectadas,
+        "no_detectadas": total_no_detectadas,
+        "sin_anotacion": total_sin_anotacion,
+        "tiempos_ocr": tiempos_ocr,
+        "csv": csv_salida,
+        "salida": salida_dir
+    }
 
 
 # =====================================================
@@ -378,8 +575,6 @@ def get_ocr_vlm(device, vlm_id="PaddlePaddle/PaddleOCR-VL"):
 
 def leer_placa_vlm(crop, device, ocr_inst=None, prompt=PROMPT_PLACA):
     """Devuelve (texto normalizado, confianza media de los tokens) usando el VLM."""
-    import torch
-
     if crop is None or crop.size == 0:
         return "", 0.0
     reader = ocr_inst if ocr_inst is not None else get_ocr_vlm(device)
@@ -424,8 +619,7 @@ def leer_placa_vlm(crop, device, ocr_inst=None, prompt=PROMPT_PLACA):
 
 
 def leer_cronometrado(crop, leer_fn):
-    """Devuelve (lectura cruda, lectura corregida por posición, milisegundos).
-    `leer_fn(crop) -> (texto, conf)`, p. ej. functools.partial(leer_placa_vlm, device=DEVICE)."""
+    """Devuelve (lectura cruda, lectura corregida por posición, milisegundos)."""
     if crop is None or crop.size == 0:
         return "", "", 0.0
     t0 = perf_counter()
@@ -514,14 +708,12 @@ def decidir_clase(v):
 
 def preprocess(pil_rgb, device):
     """Redimensiona a 640x640 y devuelve el tensor (1,3,640,640) en `device`."""
-    import torch
     im = pil_rgb.resize((640, 640), Image.BILINEAR)
     return torch.from_numpy(np.array(im)).permute(2, 0, 1).float().div(255)[None].to(device)
 
 
 def letterbox(pil_rgb, device, size=640):
     """Redimensiona manteniendo la proporción y rellena con gris. Devuelve (tensor, r, px, py)."""
-    import torch
     w, h = pil_rgb.size
     r = size / max(w, h)
     nw, nh = int(round(w * r)), int(round(h * r))
@@ -533,9 +725,7 @@ def letterbox(pil_rgb, device, size=640):
 
 
 def run_detector(x, mdl, post, conf, valid_classes, sizes):
-    """x: (B,3,640,640) | sizes: (B,2) con (w,h) originales.
-    Devuelve una lista (boxes, scores, labels) por imagen del batch."""
-    import torch
+    """Devuelve una lista (boxes, scores, labels) por imagen del batch."""
     with torch.no_grad():
         labels, boxes, scores = post(mdl(x), sizes)
     labels, boxes, scores = labels.cpu().numpy(), boxes.cpu().numpy(), scores.cpu().numpy()
@@ -544,6 +734,28 @@ def run_detector(x, mdl, post, conf, valid_classes, sizes):
         keep = (s >= conf) & np.isin(l, np.array(valid_classes))
         results.append((b[keep], s[keep], l[keep]))
     return results
+
+
+def crear_detector_rtdetr(model_plate, postprocessor_plate, device, conf, plate_classes=(0,)):
+    """Devuelve `detectar(img_bgr) -> [(caja_xyxy en píxeles originales, confianza)]`
+    para usar con `evaluar_dataset`. Aplica letterbox (no deforma la imagen) y deshace
+    el letterbox para devolver las cajas en la imagen original."""
+    tam = torch.tensor([[640, 640]], device=device)   # (w, h) del lienzo con letterbox
+
+    def detectar(img):
+        h, w = img.shape[:2]
+        x, r, px, py = letterbox(Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB)), device)
+        cajas, scores, _ = run_detector(x, model_plate, postprocessor_plate,
+                                        conf, list(plate_classes), tam)[0]
+        preds = []
+        for (a, b, c, d), s in zip(cajas, scores):
+            x1, x2 = (a - px) / r, (c - px) / r
+            y1, y2 = (b - py) / r, (d - py) / r
+            preds.append(([max(0, min(w, x1)), max(0, min(h, y1)),
+                           max(0, min(w, x2)), max(0, min(h, y2))], float(s)))
+        return preds
+
+    return detectar
 
 
 def make_tracker(fps, buffer_seconds, min_conf=0.7):
@@ -562,7 +774,6 @@ def detect_plates_in_crops(rgb, veh_xyxy, veh_tids, conf, model_plate, postproce
                            device, plate_classes=(0,), max_crops=8, min_crop_side=48,
                            crop_margin=0.05):
     """Devuelve {tracker_id_vehiculo: (score, caja_en_frame)} con la mejor matrícula de cada vehículo."""
-    import torch
     H, W = rgb.shape[:2]
     if len(veh_xyxy) == 0:
         return {}
@@ -618,17 +829,7 @@ def procesar_video_yolo(video_path, salida_video, salida_csv, detector_placas_in
                         conf_vehiculos=0.5, iou_vehiculos=0.5, imgsz=960,
                         track_kwargs=None, predict_kwargs=None, etiqueta_ocr="ocr",
                         ocr_solo_en_placas=False, max_ancho_salida=None, mostrar_progreso=False):
-    """Procesamiento en dos pasadas (YOLO + ByteTrack): inferencia/tracking/OCR y renderizado/CSV.
-
-    nombre / colores: {clase_coco: nombre} y {clase_coco: color BGR}
-    track_kwargs / predict_kwargs: argumentos extra de ultralytics (p. ej. quantize, verbose)
-    etiqueta_ocr: texto del contador de lecturas en la barra inferior
-    ocr_solo_en_placas: si True, el contador cuenta solo vehículos con matrícula y lectura
-    max_ancho_salida: reduce el vídeo de salida a ese ancho máximo (None = tamaño original)
-    mostrar_progreso: imprime el fotograma actual cada 100 en la pasada 2
-    """
-    import os
-    from collections import defaultdict, deque
+    """Procesamiento en dos pasadas (YOLO + ByteTrack): inferencia/tracking/OCR y renderizado/CSV."""
     from ultralytics import YOLO
 
     track_kwargs = track_kwargs or {}
@@ -818,14 +1019,10 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
                           conf_vehiculos=0.5, plate_conf=0.3, hold_frames=5, max_crops=8,
                           min_crop_side=48, crop_margin=0.05, color_placa=(0, 165, 255),
                           escala_texto_placa=0.35, ocr_cada=5, min_ancho_ocr=40, min_chars_placa=4,
-                          ocr_score_ok=0.5, ocr_max_intentos=6, vlm=False):
+                          ocr_score_ok=0.5, ocr_max_intentos=6):
     """Detecta y sigue personas/vehículos con RT-DETR + ByteTrack, localiza la matrícula dentro del recorte
-    de cada vehículo y la lee con `leer_placa`. Guarda resultado.mp4 y resultado.csv en `output_dir`.
-    Devuelve (plates_seen, lecturas)."""
-    import os
-    import torch
+    de cada vehículo y la lee con `leer_placa`."""
     import supervision as sv
-    from collections import defaultdict
 
     base_class = list(class_names.keys())
 
@@ -984,10 +1181,7 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
         cv2.rectangle(image, (0, h - 40), (w, h), (0, 0, 0), -1)
         texto = "  |  ".join(f"{class_names[c]}: {len(ids_propios[c])}" for c in class_names)
         texto += f"  |  plate: {len(plates_seen)}"
-        if vlm == False:
-            texto += f"  |  OCR: {len(lecturas)}"
-        else:
-            texto += f"  |  VLM: {len(lecturas)}"
+        texto += f"  |  ocr: {len(lecturas)}"
         cv2.putText(image, texto, (10, h - 12),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
 

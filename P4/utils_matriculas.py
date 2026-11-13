@@ -13,10 +13,8 @@ import os
 from collections import defaultdict, deque
 
 
-# =====================================================
-# CONSTANTES
-# =====================================================
 
+# CONSTANTES
 GT_KEYS = ("lpn", "text", "plate", "label", "number", "plate_number")
 
 CONS = "BCDFGHJKLMNPRSTVWXYZ"
@@ -48,7 +46,7 @@ MIN_FRAMES_ESTATICO = 15
 IOU_ESTATICO = 0.5
 MAYORIA_PESADOS = 0.65
 
-# Corrección por posición (matrícula española DDDDLLL)
+# Corrección por posición
 CONS_ES = "BCDFGHJKLMNPRSTVWXYZ"
 LETRA_A_DIGITO = {"O": "0", "Q": "0", "D": "0", "I": "1", "L": "1", "Z": "2",
                   "S": "5", "G": "6", "T": "7", "B": "8"}
@@ -57,10 +55,8 @@ DIGITO_A_LETRA = {"0": "D", "1": "L", "2": "Z", "5": "S", "6": "G", "7": "T", "8
 PROMPT_PLACA = "OCR:"
 
 
-# =====================================================
-# TEXTO
-# =====================================================
 
+# TEXTO
 def norm(s: str) -> str:
     """Normaliza texto a mayúsculas alfanuméricas."""
     return re.sub(r"[^A-Z0-9]", "", s.upper())
@@ -91,10 +87,8 @@ def corregir(texto):
     return corr if re.fullmatch(rf"\d{{4}}[{CONS_ES}]{{3}}", corr) else texto
 
 
-# =====================================================
-# GEOMETRÍA
-# =====================================================
 
+# GEOMETRÍA
 def iou(a, b):
     x1, y1 = max(a[0], b[0]), max(a[1], b[1])
     x2, y2 = min(a[2], b[2]), min(a[3], b[3])
@@ -126,10 +120,8 @@ def recortar(img, box, pad=0.05, margen_px=None):
     return img[y1:y2, x1:x2]
 
 
-# =====================================================
-# DATASET / MÉTRICAS
-# =====================================================
 
+# DATASET Y MÉTRICAS
 def cargar_gt(img_path, w, h, anotaciones_dir, gt_keys=GT_KEYS):
     """Carga cajas (xyxy en píxeles) y textos anotados desde el JSON de la imagen."""
     ruta = Path(anotaciones_dir) / f"{Path(img_path).stem}.json"
@@ -163,7 +155,7 @@ def evaluar_dataset(lista_imagenes, detectar, leer_placa, cargar_gt, salida, dir
     salida = Path(salida)
     (salida / dir_errores).mkdir(parents=True, exist_ok=True)
 
-    # Calentamiento: la primera lectura (sobre todo con VLM) es notablemente más lenta
+    # La primera lectura es notablemente más lenta
     leer_cronometrado(np.zeros((30, 100, 3), np.uint8), leer_placa)
 
     filas = []
@@ -183,7 +175,7 @@ def evaluar_dataset(lista_imagenes, detectar, leer_placa, cargar_gt, salida, dir
         preds = detectar(img)
         n_detectadas += len(preds)
 
-        # 1) OCR sobre las detecciones (se descartan ANTES de leer las que no sirven)
+        # OCR sobre las detecciones 
         for box, det_conf in preds:
             mejor_iou, gt_txt = 0.0, None
             for gbox, gtxt in gts:
@@ -206,7 +198,7 @@ def evaluar_dataset(lista_imagenes, detectar, leer_placa, cargar_gt, salida, dir
             if gt_txt != cruda and rec.size > 0:
                 cv2.imwrite(str(salida / dir_errores / f"{len(filas):05d}_gt-{gt_txt}_ocr-{cruda}.jpg"), rec)
 
-        # 2) Techo del OCR: recorte exacto de la anotación (sin depender del detector)
+        # Rrecorte exacto de la anotación
         for gbox, gtxt in gts:
             if gtxt is None or gtxt == "NONE":
                 continue
@@ -255,7 +247,7 @@ def evaluar_detector(detector, imagenes_dir, anotaciones_dir, salida_dir, leer_o
     detectadas_dir.mkdir(parents=True, exist_ok=True)
     no_detectadas_dir.mkdir(parents=True, exist_ok=True)
 
-    #Se limpian resultados anteriores en caso de así quererlo
+    # Se limpian resultados anteriores en caso de así quererlo
     if limpiar_salida:
         for carpeta in [detectadas_dir, no_detectadas_dir]:
             for archivo in carpeta.iterdir():
@@ -334,7 +326,6 @@ def evaluar_detector(detector, imagenes_dir, anotaciones_dir, salida_dir, leer_o
                 predicciones_usadas.add(pi)
 
         # Una única copia por imagen.
-        # Así podemos dibujar varias matrículas sin sobrescribirlas.
         img_marcada = img.copy()
         fallos_imagen = 0
         aciertos_imagen = 0
@@ -386,8 +377,7 @@ def evaluar_detector(detector, imagenes_dir, anotaciones_dir, salida_dir, leer_o
         if aciertos_imagen > 0:
             cv2.imwrite(str(detectadas_dir / img_path.name), img_marcada)
 
-        # Si falta alguna matrícula, guardar también
-        # la fotografía original en no_detectadas.
+        # Si falta alguna matrícula, se guarda también la fotografía original en no_detectadas.
         if fallos_imagen > 0:
             cv2.imwrite(
                 str(no_detectadas_dir / img_path.name),
@@ -459,10 +449,8 @@ def evaluar_detector(detector, imagenes_dir, anotaciones_dir, salida_dir, leer_o
     }
 
 
-# =====================================================
-# OCR: PADDLEOCR
-# =====================================================
 
+# OCR: PADDLEOCR
 _ocr_paddle = None
 _paddle_disponible = True
 
@@ -533,17 +521,14 @@ def leer_placa_paddle(crop, ocr_inst=None):
     if not out:
         return "", 0.0
 
-    # Ordenar por línea (vertical) y luego de izquierda a derecha
     alto = g.shape[0]
     out.sort(key=lambda r: (round(r[3] / (alto / 2)), r[2]))
     texto = norm("".join(r[0] for r in out))
     return texto, float(np.mean([r[1] for r in out]))
 
 
-# =====================================================
-# OCR: VLM (PaddleOCR-VL)
-# =====================================================
 
+# VLM (PaddleOCR-VL)
 _ocr_vlm = None
 _vlm_disponible = True
 
@@ -628,10 +613,8 @@ def leer_cronometrado(crop, leer_fn):
     return cruda, corregir(cruda), ms
 
 
-# =====================================================
-# TRACKING DE VEHÍCULOS (versión YOLO: fusión de tracklets)
-# =====================================================
 
+# TRACKING DE VEHÍCULOS
 def prediccion_posicion(info, a, gap):
     """Estima la posición esperada del tracklet tras `gap` fotogramas perdidos."""
     (f0, c0), (f1, c1) = info[a]['hist'][0], info[a]['hist'][-1]
@@ -668,7 +651,6 @@ def fusionar_tracklets(info, frames_visto, clase_prelim, fps):
             gap = info[b]['ini'] - info[a]['fin']
             da, db = diag(info[a]['caja_fin']), diag(info[b]['caja_ini'])
 
-            # Vía estática: vehículo aparcado con oclusión prolongada
             if (fam != 'p' and gap <= GAP_ESTATICO_SEG * fps and b_estatico_ok
                     and es_estatico(info, frames_visto, a) and 0.7 <= db / max(da, 1) <= 1.4):
                 s = iou(info[a]['caja_fin'], info[b]['caja_ini'])
@@ -678,7 +660,6 @@ def fusionar_tracklets(info, frames_visto, clase_prelim, fps):
                         mejor, mejor_d = a, d
                     continue
 
-            # Vía dinámica: movimiento continuo y cercanía a la posición predicha
             if gap > seg * fps:
                 continue
             if not 0.4 <= db / max(da, 1) <= 2.5:
@@ -702,10 +683,8 @@ def decidir_clase(v):
     return c
 
 
-# =====================================================
-# RT-DETR: PREPROCESADO, DETECCIÓN Y TRACKER
-# =====================================================
 
+# RT-DETR: PREPROCESADO, DETECCIÓN Y TRACKER
 def preprocess(pil_rgb, device):
     """Redimensiona a 640x640 y devuelve el tensor (1,3,640,640) en `device`."""
     im = pil_rgb.resize((640, 640), Image.BILINEAR)
@@ -817,10 +796,8 @@ def detect_plates_in_crops(rgb, veh_xyxy, veh_tids, conf, model_plate, postproce
     return best
 
 
-# =====================================================
-# PROCESAMIENTO DE VÍDEO
-# =====================================================
 
+# PROCESAMIENTO DE VÍDEO
 def procesar_video_yolo(video_path, salida_video, salida_csv, detector_placas_inst, leer_placa,
                         nombre, colores, *, conf_placa, min_frames_placa, color_placa,
                         escala_texto_placa, ocr_cada, min_ancho_ocr, min_chars_placa, ocr_score_ok,
@@ -842,7 +819,7 @@ def procesar_video_yolo(video_path, salida_video, salida_csv, detector_placas_in
     h = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     cap.release()
 
-    # ---------- Pasada 1: Detección, tracking y lectura OCR ----------
+    # Pasada 1: Detección, tracking y lectura OCR
     print("Iniciando Pasada 1: tracking, detección y lectura OCR en vídeo...")
     results = model_yolo.track(source=video_path, stream=True, classes=list(nombre),
                                conf=conf_vehiculos, iou=iou_vehiculos, imgsz=imgsz, persist=True,
@@ -873,7 +850,7 @@ def procesar_video_yolo(video_path, salida_video, salida_csv, detector_placas_in
                 frame_data.append((caja, tid, c, conf))
         datos.append(frame_data)
 
-        # Matrículas sobre este mismo fotograma usando detector_placas_inst
+
         placas_f = []
         if any(c != 0 for _, _, c, _ in frame_data):
             rp = detector_placas_inst.predict(r.orig_img, conf=conf_placa, imgsz=imgsz, **predict_kwargs)[0]
@@ -921,7 +898,7 @@ def procesar_video_yolo(video_path, salida_video, salida_csv, detector_placas_in
 
     print(f"IDs originales: {len(info)} -> tras fusionar: {len(set(raiz.values()))}")
 
-    # ---------- Pasada 2: Renderizado de vídeo y guardado a CSV ----------
+    # Pasada 2: Renderizado de vídeo y guardado a CSV
     print("Iniciando Pasada 2: renderizado de vídeo y escritura en CSV...")
     ids_propios = {c: {} for c in nombre}
     placas_vehiculo = set()
@@ -929,7 +906,7 @@ def procesar_video_yolo(video_path, salida_video, salida_csv, detector_placas_in
 
     cap = cv2.VideoCapture(video_path)
     if max_ancho_salida:
-        # Reduce la salida al ancho máximo indicado (codificar 4K es lo que más tarda)
+        # Reduce la salida al ancho máximo indicado
         esc_s = min(1.0, max_ancho_salida / w)
         w_s, h_s = int(w * esc_s) // 2 * 2, int(h * esc_s) // 2 * 2
     else:
@@ -1035,10 +1012,8 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
     h = int(vid.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = vid.get(cv2.CAP_PROP_FPS) or 30
 
-    # escritor de video a disco (sustituye a la ventana)
     writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (w, h))
 
-    # csv con separador punto y coma
     csv_file = open(output_csv, 'w', newline='', encoding='utf-8-sig')
     csv_writer = csv.writer(csv_file, delimiter=';')
     csv_writer.writerow(['fotograma', 'tipo_objeto', 'confianza', 'identificador_tracking',
@@ -1046,16 +1021,15 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
                          'matricula_en_su_caso', 'confianza_matricula', 'mx1', 'my1', 'mx2', 'my2',
                          'texto_matricula'])
 
-    tracker_person = make_tracker(fps, 4)    # peatones: aguantan 4 s tapados
-    tracker_vehicle = make_tracker(fps, 1.5)  # 3s
-    # tracker_plate no existe ya que la matricula hereda el id del vehiculo
-
+    tracker_person = make_tracker(fps, 4)   
+    tracker_vehicle = make_tracker(fps, 1.5)  
+                              
     size_full = torch.tensor([[w, h]], device=device)
 
     ids_propios = {c: {} for c in class_names}
-    class_scores = defaultdict(lambda: defaultdict(float))  # key -> {clase: score acumulado}
-    track_class = {}                                         # key -> clase votada actual
-    next_num = {c: 1 for c in class_names}           # siguiente número visible por clase
+    class_scores = defaultdict(lambda: defaultdict(float)) 
+    track_class = {}                                         
+    next_num = {c: 1 for c in class_names}       
 
     plates_seen = set()      # vehiculos que han tenido matricula alguna vez
     last_plate = {}          # tid_vehiculo -> (score, caja, frame_idx)
@@ -1087,13 +1061,13 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
 
         det_person = detections[detections.class_id == base_class[0]]
         det_veh = detections[np.isin(detections.class_id, base_class[1:])]
-        det_veh = det_veh.with_nms(threshold=0.55, class_agnostic=False)  # duplicados de la misma clase
-        det_veh = det_veh.with_nms(threshold=0.65, class_agnostic=True)    # (0.35) mismo objeto con dos clases
+        det_veh = det_veh.with_nms(threshold=0.55, class_agnostic=False)  
+        det_veh = det_veh.with_nms(threshold=0.65, class_agnostic=True)    
 
         det_person = tracker_person.update_with_detections(det_person)
         det_veh = tracker_vehicle.update_with_detections(det_veh)
 
-        # matriculas: se buscan en el recorte de cada vehiculo trackeado y se asocian a su tracker_id
+       
         plate_by_tid = detect_plates_in_crops(rgb, det_veh.xyxy, det_veh.tracker_id, plate_conf,
                                               model_plate, postprocessor_plate, device,
                                               plate_classes=plate_classes, max_crops=max_crops,
@@ -1101,7 +1075,6 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
         for tid, (sc, bx) in plate_by_tid.items():
             last_plate[tid] = (sc, bx, frame_idx)
 
-            # Inferencia OCR sobre la placa detectada (control de frecuencia y número de intentos)
             ancho_placa = bx[2] - bx[0]
             if (ancho_placa >= min_ancho_ocr
                     and intentos_ocr[tid] < ocr_max_intentos
@@ -1118,18 +1091,16 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
 
         detections = sv.Detections.merge([det_person, det_veh])
 
-        frame_rows = []   # datos del frame para el csv
-
+        frame_rows = [] 
         for box, score, label, tid in zip(detections.xyxy, detections.confidence, detections.class_id, detections.tracker_id):
-            # Los dos trackers generan IDs desde 1, así que la clave incluye el grupo
             grupo = 'person' if label == 0 else 'veh'
             key = (grupo, tid)
 
-            # Voto: suma el score de la clase detectada en este frame
+            # Suma el score de la clase detectada en este frame
             class_scores[key][label] += score
             cls = max(class_scores[key], key=class_scores[key].get)
 
-            # Si la clase votada cambió, mueve el track a la nueva clase (para no inflar el conteo)
+            # Si la clase votada cambió, mueve el track a la nueva clase
             if track_class.get(key) != cls:
                 old = track_class.get(key)
                 if old is not None:
@@ -1149,7 +1120,6 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
                 'plate': None,
             })
 
-        # escritura del csv (personas y vehiculos; la matricula va en la fila de su vehiculo)
         for r in frame_rows:
             if r['grupo'] == 'veh' and r['tid'] in last_plate:
                 sc, bx, f = last_plate[r['tid']]
@@ -1177,7 +1147,6 @@ def procesar_video_rtdetr(path_video, output_dir, model, postprocessor, model_pl
             csv_writer.writerow([frame_idx, class_names[r['cls']], f"{r['score']:.4f}", r['id'],
                                  *r['box'], *plate_cols])
 
-        # Barra inferior con los totales
         cv2.rectangle(image, (0, h - 40), (w, h), (0, 0, 0), -1)
         texto = "  |  ".join(f"{class_names[c]}: {len(ids_propios[c])}" for c in class_names)
         texto += f"  |  plate: {len(plates_seen)}"

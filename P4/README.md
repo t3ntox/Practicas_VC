@@ -56,7 +56,7 @@ Para todo este proceso se aplican; un sistema de votación para evitar la clasif
 
 Únicamente para RT-DETR, con el objetivo de obtener un track lo más preciso posible, se emplean dos trackers distintos: uno para personas y otros para vehículos. Esta distinción, permite que el parámetro `lost_track_buffer` sea distinto ya que ambas clases se mueven en pantalla a velocidades muy distintas. Por ello, el tracker de las personas requiere un valor más alto, ya que sus oclusiones se prolongan más en el tiempo, para mantener el id durante el track. Junto a ello, el uso de una confianza tan baja se debe a que permite delegar en los trackers el descarte de detecciones, permitiendo el seguimiento de elementos durante un mayor período de tiempo.
 
-Vídeos Y CSV correspondientes:
+Vídeos y CSV correspondientes:
 - [Video YOLO PaddleOCR](./YOLO_PaddleOCR_result/resultado.mp4)
 - [CSV YOLO PaddleOCR](./YOLO_PaddleOCR_result/resultado.csv)
 - [Video RT-DETR PaddleOCR](./RT-DETR_PaddleOCR_result/resultado.mp4)

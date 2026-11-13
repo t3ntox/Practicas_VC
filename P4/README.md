@@ -21,11 +21,11 @@ Para el entrenamiento contamos con un dataset de 2812 imágenes. Dicho dataset s
 El dataset se referencia a través del archivo `data.yaml`, que indica las rutas de entrenamiento y validación y la única clase a detectar: `plate`.
 
 Para el entrenamiento se ha empleado la librería `ultralytics`. El entrenamiento se realizó en dos fases: una primera de aproximadamente 40 épocas y una segunda de 24 que continuó a partir de la primera, con un total de 64 épocas efectivas. Las condiciones principales son:
-- Resolución de entrada de 960 px (`imgsz=960`), ya que las matrículas ocupan una región muy pequeña de la imagen
+- Resolución de entrada de 960 px `imgsz=960`, ya que las matrículas ocupan una región muy pequeña de la imagen
 - Batch de 8 y caché de las imágenes en RAM
-- Parada temprana (`patience=20`), con el objetivo de evitar estancamientos durante el entrenamiento.
+- Parada temprana `patience=20`, con el objetivo de evitar estancamientos durante el entrenamiento.
 - Aumentos de datos adaptados a matrículas: sin volteo horizontal `fliplr=0.0`, rotación aleatoria de hasta 5º y variación de brillo `hsv_v=0.4`
-- Desactivación del aumento *mosaic* en las últimas 10 épocas (`close_mosaic=10`), para acabar de ajustar los pesos sobre imagenes.
+- Desactivación del aumento *mosaic* en las últimas 10 épocas `close_mosaic=10`, para acabar de ajustar los pesos sobre imagenes.
 
 El modelo seleccionado es `yolo11s` (`yolo11s.pt`), que parte de los pesos preentrenados en COCO. No se congelan capas debido a que no se le ha especificado, de modo que todo el modelo se va adaptando a la única clase que se quiere detectar: `matrículas`.
 

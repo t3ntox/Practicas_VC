@@ -158,7 +158,7 @@ Por otro lado, YOLO muestra una convergencia considerablemente más rápida, con
 
 En cuanto a las métricas adicionales de RT-DETR, se observa que el modelo presenta un comportamiento condicionado por el tamaño de los objetos detectados. El AP75 alcanza un valor aproximado de 0,29, lo que refleja un rendimiento más limitado cuando se exige un mayor grado de solapamiento entre las cajas predichas y las anotadas. Al analizar el rendimiento según el tamaño de los objetos, se aprecia una diferencia considerable: el AP para objetos pequeños alcanza únicamente 0,20, mientras que para objetos medianos aumenta hasta 0,47 y para objetos grandes llega a 0,58. Esto evidencia que el modelo RT-DETR entrenado, presenta mayores dificultades para localizar objetos de dimensiones reducidas, obteniendo resultados progresivamente mejores a medida que aumenta su tamaño.
 
-## 5. Comparaciones reales
+## 6. Comparaciones reales
 
 A través de la evaluación de 200 imágenes con cada modelo se han guardado las matrículas que detecta y las que no detecta cada uno (carpetas `detectadas` y `no_detectadas` dentro de `resultados/YOLO` y `resultados/RTDETR`). De ellas se ha seleccionado un pequeño número de imágenes representativas que se agrupan en las 4 combinaciones posibles.
 
@@ -200,16 +200,18 @@ A través de la evaluación de 200 imágenes con cada modelo se han guardado las
 
 ---
 
-## 6. Conclusiones
+## 7. Conclusiones
 
-1. **YOLO supera a RT-DETR en todas las métricas comparables**: +0.18 en mAP@50, +0.10 en mAP@50-95, +0.13 en F1 máximo y +0.11 en recall máximo.
-2. Ambos modelos comparten un **umbral óptimo de confianza ≈ 0.41**.
-3. YOLO es **más robusto al umbral** (curva F1 amplia) y detecta más matrículas reales (recall normalizado 0.87 vs 0.72).
-4. RT-DETR tiene un nivel alto de **falsos positivos** a umbrales bajos y su rendimiento se degrada más en objetos pequeños.
-5. YOLO requirió menos de la mitad de epochs (24 vs 50) para obtener mejores resultados.
-
+Los resultados muestran que YOLO supera a RT-DETR en todas las métricas de detección comparables: la diferencia es de +0.18 en mAP@50, +0.10 en mAP@50-95, +0.13 en F1 máximo y +0.11 en recall máximo. Esta ventaja se mantiene tanto en el último epoch como en el mejor epoch, lo que indica que no responde a una fluctuación puntual del entrenamiento, sino que parece una característica estructural del modelo en este conjunto de datos y configuración. Además, YOLO alcanza este rendimiento con menos de la mitad de epochs (24 frente a 50), lo que refleja una convergencia más rápida, mientras que RT-DETR presenta indicios de estancamiento y un posible sobreajuste a partir del epoch ~20.
+ 
+En cuanto al comportamiento frente al umbral de confianza, ambos modelos comparten un umbral óptimo cercano a 0.41, aunque YOLO resulta más robusto a su elección gracias a una curva F1 más amplia. YOLO también detecta más matrículas reales, con un recall normalizado de 0.87 frente a 0.72 de RT-DETR, lo que supone reducir las omisiones en aproximadamente un 54%. Esta ventaja es relevante cuando el objetivo es evitar que las placas pasen inadvertidas.
+ 
+Por su parte, RT-DETR presenta un nivel elevado de falsos positivos a umbrales bajos (una precisión de ~0.46 con confianza 0.2, frente a ~0.81 de YOLO) y su rendimiento se degrada de forma marcada en objetos pequeños, con un AP small de 0.20 frente a 0.58 en objetos grandes.
+ 
+Estas conclusiones deben interpretarse con cautela, ya que los conjuntos de validación parecen distintos y los modelos se entrenaron con diferente número de epochs. Aun así, la consistencia de la ventaja de YOLO en todas las métricas y curvas analizadas apunta a que es el detector más adecuado para este problema. Una confirmación rigurosa requiere evaluar ambos modelos sobre un mismo split, tal y como se detalla a continuación.
+ 
 ### Limitaciones de la comparativa
-
+ 
 - Los conjuntos de validación parecen distintos (1417 vs 978 instancias).
 - Distinto número de epochs y, probablemente, distintos hiperparámetros y tamaño de modelo.
 - Valores de curvas de entrenamiento leídos visualmente (aproximados).

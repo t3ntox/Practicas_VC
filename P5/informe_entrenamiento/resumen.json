@@ -1,0 +1,182 @@
+{
+  "entorno": {
+    "python": "3.11.5",
+    "so": "Windows-10-10.0.26300-SP0",
+    "tensorflow": "2.21.0",
+    "keras": "3.15.1",
+    "gpus": [],
+    "usa_gpu": false,
+    "politica_precision": "float32",
+    "cpus": 16
+  },
+  "configuracion": {
+    "SEED": 42,
+    "EPOCHS": 80,
+    "BATCH": 128,
+    "LR_MAX": 0.002,
+    "LR_MIN": 1e-05,
+    "WARMUP": 3,
+    "WEIGHT_DECAY": 0.0001,
+    "LABEL_SMOOTHING": 0.1,
+    "PESO_CLASE_POTENCIA": 0.5,
+    "PACIENCIA": 20,
+    "VAL_FRAC": 0.1,
+    "TAM_CNN": 48,
+    "ARQ_stem": 8,
+    "ARQ_bloques": [
+      16,
+      32,
+      96,
+      160
+    ],
+    "ARQ_n_sep": 2
+  },
+  "parametros": 92791,
+  "clases": [
+    "angry",
+    "duckface",
+    "fear",
+    "happy",
+    "neutral",
+    "sad",
+    "surprise"
+  ],
+  "distribucion": {
+    "train_total": {
+      "angry": 3995,
+      "duckface": 2143,
+      "fear": 4097,
+      "happy": 7215,
+      "neutral": 4965,
+      "sad": 4830,
+      "surprise": 3171
+    },
+    "train": {
+      "angry": 3596,
+      "duckface": 1929,
+      "fear": 3687,
+      "happy": 6493,
+      "neutral": 4468,
+      "sad": 4347,
+      "surprise": 2854
+    },
+    "val": {
+      "angry": 399,
+      "duckface": 214,
+      "fear": 410,
+      "happy": 722,
+      "neutral": 497,
+      "sad": 483,
+      "surprise": 317
+    },
+    "test": {
+      "angry": 958,
+      "duckface": 491,
+      "fear": 1024,
+      "happy": 1774,
+      "neutral": 1233,
+      "sad": 1247,
+      "surprise": 831
+    },
+    "train_%": {
+      "angry": 13.13,
+      "duckface": 7.05,
+      "fear": 13.47,
+      "happy": 23.72,
+      "neutral": 16.32,
+      "sad": 15.88,
+      "surprise": 10.43
+    },
+    "test_%": {
+      "angry": 12.68,
+      "duckface": 6.5,
+      "fear": 13.55,
+      "happy": 23.47,
+      "neutral": 16.31,
+      "sad": 16.5,
+      "surprise": 10.99
+    },
+    "peso_balanced": {
+      "angry": 1.087,
+      "duckface": 2.027,
+      "fear": 1.061,
+      "happy": 0.602,
+      "neutral": 0.875,
+      "sad": 0.9,
+      "surprise": 1.37
+    },
+    "peso_usado": {
+      "angry": 1.058,
+      "duckface": 1.445,
+      "fear": 1.045,
+      "happy": 0.788,
+      "neutral": 0.949,
+      "sad": 0.962,
+      "surprise": 1.188
+    }
+  },
+  "class_weight_usado": {
+    "0": 1.0581903444660719,
+    "1": 1.4447992987229819,
+    "2": 1.045049994225223,
+    "3": 0.7875006747156733,
+    "4": 0.9493296687021994,
+    "5": 0.9624514162273831,
+    "6": 1.187809109433865
+  },
+  "entrenamiento": {
+    "epocas_ejecutadas": 80,
+    "mejor_epoca": 80,
+    "val_accuracy_mejor": 0.6285338401794434,
+    "val_f1_en_mejor": 0.6352098470121124,
+    "val_loss_min": 1.2575186491012573,
+    "val_loss_min_epoca": 75,
+    "train_acc_ultima_epoca": 0.7572149038314819,
+    "train_acc_en_mejor": 0.7572149038314819,
+    "parada_temprana": false,
+    "tiempo_total_s": 3994.91743350029,
+    "tiempo_medio_epoca_s": 48.78387624323368
+  },
+  "metricas_globales": {
+    "accuracy": {
+      "train (limpio)": 0.7239716519324907,
+      "val": 0.62853385930309,
+      "test": 0.6170944694363588,
+      "test + TTA(flip)": 0.642233395078063
+    },
+    "balanced_accuracy": {
+      "train (limpio)": 0.7283198528429827,
+      "val": 0.6308712269732969,
+      "test": 0.6204258092744946,
+      "test + TTA(flip)": 0.643751288179421
+    },
+    "f1_macro": {
+      "train (limpio)": 0.7300551350872349,
+      "val": 0.6352098470121124,
+      "test": 0.6258390308684965,
+      "test + TTA(flip)": 0.6492966391518543
+    },
+    "f1_weighted": {
+      "train (limpio)": 0.7247066154101172,
+      "val": 0.6302379282063619,
+      "test": 0.6189570214637594,
+      "test + TTA(flip)": 0.643330345715652
+    },
+    "top2": {
+      "train (limpio)": 0.8839774968948637,
+      "val": 0.7922419460881,
+      "test": 0.7974331833818471,
+      "test + TTA(flip)": 0.8127811590367822
+    },
+    "accuracy_sin_duckface": {
+      "train (limpio)": 0.713028099823148,
+      "val": 0.6145685997171145,
+      "test": 0.6050657987830763,
+      "test + TTA(flip)": 0.6315268147728881
+    }
+  },
+  "ece": 0.011084295925591842,
+  "inferencia_cpu_ms_eager": 42.76128530502319,
+  "inferencia_cpu_ms_tf_function": 3.7051987648010254,
+  "tiempo_carga_datos_s": 7.41019344329834
+}

@@ -31,7 +31,7 @@ class DetectorCaras:
                 f"OpenCV {cv2.__version__} no puede leer modelos Caffe (se quitó en OpenCV 5). "
                 "Instala OpenCV 4.x con un solo paquete: pip uninstall -y opencv-python "
                 "opencv-contrib-python opencv-contrib-python-headless && pip install opencv-contrib-python==4.12.0.88")
-        self.net = cv2.dnn.readNetFromCaffe(proto, pesos)
+        self.net = cv2.dnn.readNetFromCaffe(np.fromfile(proto, np.uint8), np.fromfile(pesos, np.uint8))
         self.conf_min = conf_min
 
     def detectar(self, img, min_lado=20):
@@ -90,7 +90,7 @@ class Landmarks:
             from mediapipe.tasks.python import vision
             self._mp = mp
             opts = vision.FaceLandmarkerOptions(
-                base_options=mp_python.BaseOptions(model_asset_path=ruta),
+                base_options=mp_python.BaseOptions(model_asset_buffer=open(ruta, "rb").read()),
                 running_mode=vision.RunningMode.VIDEO if video else vision.RunningMode.IMAGE,
                 num_faces=1)
             self.modelo = vision.FaceLandmarker.create_from_options(opts)

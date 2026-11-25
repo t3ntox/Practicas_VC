@@ -39,6 +39,7 @@ Ambos experimentos usan el mismo detector con la misma configuración, por lo qu
 | Sobre recorte anotado (techo) | n | 208 | 208 | 208 | 208 |
 | | Exact match | 0.716 | 0.788 | 0.736 | 0.822 |
 | | Acierto por carácter | 0.881 | 0.924 | 0.885 | 0.932 |
+
 Diferencias del VLM frente a PaddleOCR, en puntos porcentuales (se compara lectura cruda con cruda y corregida con corregida):
 
 | Escenario | Exact match (crudo) | Exact match (con corrección) | Por carácter (crudo) | Por carácter (con corrección) |
@@ -54,6 +55,7 @@ Mejora que aporta la corrección por posición sobre cada lector (exact match, e
 | Techo | +2,0 | +3,4 |
 
 Los resultados muestran que VLM obtiene un rendimiento superior a PaddleOCR en ambos escenarios de evaluación, tanto en exact match como en acierto por carácter. Sobre las detecciones de RT-DETR, VLM alcanza un exact match de 0,814 frente a 0,714 de PaddleOCR, mientras que el acierto por carácter aumenta de 0,889 a 0,932. Esta ventaja se mantiene al aplicar la corrección, con valores de 0,854 y 0,942 para VLM, frente a 0,754 y 0,9 de PaddleOCR. En el escenario de recorte anotado, se observa la misma tendencia: VLM obtiene un exact match de 0,788 y un acierto por carácter de 0,924, superando los 0,716 y 0,881 de PaddleOCR, respectivamente. 
+
 Tras la corrección, ambos modelos mejoran sus resultados, alcanzando VLM 0,822 de exact match y 0,932 de acierto por carácter, frente a 0,736 y 0,885 de PaddleOCR. En términos generales, la corrección aporta mejoras consistentes en ambos modelos y escenarios, aunque no modifica la ventaja relativa de VLM. Esta ventaja resaltada, podría estar relacionada con la arquitectura del VLM basada en la combinación un codificador visual con un modelo de lenguaje
 
 ### 2.3 Tiempo por lectura
@@ -67,4 +69,4 @@ En términos de rendimiento temporal, PaddleOCR presenta una ventaja clara frent
 
 ## 3. Conclusiones
 
-Estos resultados indican que, aunque VLM ofrece una mayor precisión de reconocimiento, esta mejora implica un coste computacional y temporal considerablemente superior. Por el contrario, PaddleOCR presenta una ejecución más rápida y tiempos de procesamiento más reducidos en ambos escenarios, lo que lo convierte en una alternativa más adecuada cuando la velocidad de respuesta y la eficiencia temporal son factores prioritarios.
+Los resultados muestran que PaddleOCR-VL consigue una mayor precisión de reconocimiento que PaddleOCR en ambos escenarios evaluados, tanto en las detecciones de RT-DETR como en los recortes anotados. Esta ventaja se mantiene incluso después de aplicar la corrección por posición. Sin embargo, esta mejora implica un mayor coste temporal, ya que PaddleOCR-VL necesita entre 1,9 y 2,1 veces más tiempo de procesamiento. Por tanto, PaddleOCR-VL resulta más adecuado cuando se prioriza la precisión, mientras que PaddleOCR ofrece una alternativa más eficiente cuando la rapidez es fundamental. En definitiva, la elección dependerá de las necesidades y prioridades de la aplicación.

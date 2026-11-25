@@ -20,12 +20,13 @@ Comparación de las métricas de validación de dos modelos entrenados para dete
 | Métrica | RT-DETR | YOLO | Diferencia (YOLO − RT-DETR) |
 |---|---:|---:|---:|
 | mAP@50 (PR curve) | 0.596 | 0.776 | +0.180 |
-| mAP@50 (último epoch, `results.png`) | ~0.588 | ~0.758 | +0.170 |
+| mAP@50 (último epoch) | ~0.588 | ~0.758 | +0.170 |
 | mAP@50 (mejor epoch) | ~0.600 | ~0.785 | +0.185 |
 | mAP@50-95 (último epoch) | ~0.307 | ~0.407 | +0.100 |
 | mAP@50-95 (mejor epoch) | ~0.312 | ~0.423 | +0.111  |
 
 Los datos que componen esta tabla, muestran una ventaja clara y consistente de YOLO frente a RT-DETR en todas las métricas de detección evaluadas: YOLO supera a RT-DETR por aproximadamente 18 puntos porcentuales en mAP@50 y por 10–11 puntos en mAP@50-95 ).  Esta diferencia indica que YOLO no solo detecta más objetos con mayor confianza a un umbral de IoU de 0.50, sino que también localiza las cajas con mayor precisión a umbrales más estrictos. 
+
 Además, la diferencia se mantiene prácticamente constante tanto en el último epoch como en el mejor epoch, lo que sugiere que no es una fluctuación puntual del entrenamiento, sino una ventaja estructural del modelo YOLO en este conjunto de datos y configuración. 
 
 
@@ -52,6 +53,8 @@ Además, la diferencia se mantiene prácticamente constante tanto en el último 
 | RT-DETR | YOLO |
 |:---:|:---:|
 | ![Precision RT-DETR](../RT-DETR_resultado_entrenamiento/P_curve.png) | ![Precision YOLO](../YOLO_resultados_entrenamiento/BoxP_curve.png) |
+
+La oscilación que se puede observar, en la gráfica perteneciente a RT-DETR, se produce debido a que en umbrales altos el número de detecciones se reduce significativamente provocando que los falsos positivos tenga un peso mayor.
 
 **Recall-Confianza**
 
@@ -121,6 +124,7 @@ Estas curvas precisión-recall muestran que YOLO mantiene una mayor precisión p
 | Background predicho como plate (FP) | 1.00 | 1.00 |
 
 Dado que el conjunto utilizado para generar cada matriz es distinto, se presentan las versiones normalizadas, lo que permite compararlas. El valor de FP = 1.00 se debe a que, en el cálculo de la matriz, los verdaderos negativos no se contabilizan: la fila/columna de la clase “fondo” solo contiene falsos positivos, por lo que al normalizarla todo su contenido queda en 1.00. Este valor es un artefacto de la normalización y no refleja el rendimiento del modelo.
+
 Dichas matrices normalizadas muestran que YOLO detecta correctamente el 87% de las placas reales, frente al 72% de RT-DETR. Esto implica que, por cada 100 placas reales, YOLO detectaría aproximadamente 87 y omitiría 13, mientras que RT-DETR detectaría 72 y omitiría 28; por tanto, YOLO reduce las omisiones en aproximadamente un 54% respecto a RT-DETR, una ventaja relevante cuando se busca evitar que las placas pasen inadvertidas. 
 
 
@@ -158,9 +162,9 @@ Por otro lado, YOLO muestra una convergencia considerablemente más rápida, con
 
 En cuanto a las métricas adicionales de RT-DETR, se observa que el modelo presenta un comportamiento condicionado por el tamaño de los objetos detectados. El AP75 alcanza un valor aproximado de 0,29, lo que refleja un rendimiento más limitado cuando se exige un mayor grado de solapamiento entre las cajas predichas y las anotadas. Al analizar el rendimiento según el tamaño de los objetos, se aprecia una diferencia considerable: el AP para objetos pequeños alcanza únicamente 0,20, mientras que para objetos medianos aumenta hasta 0,47 y para objetos grandes llega a 0,58. Esto evidencia que el modelo RT-DETR entrenado, presenta mayores dificultades para localizar objetos de dimensiones reducidas, obteniendo resultados progresivamente mejores a medida que aumenta su tamaño.
 
-## 5. Comparaciones reales
+## 6. Comparaciones reales
 
-A través de la evaluación de 200 imágenes con cada modelo se han guardado las matrículas que detecta y las que no detecta cada uno (carpetas `detectadas` y `no_detectadas` dentro de `resultados/YOLO` y `resultados/RTDETR`). De ellas se ha seleccionado un pequeño número de imágenes representativas que se agrupan en las 4 combinaciones posibles.
+A través de la evaluación de 200 imágenes con cada modelo se han guardado las matrículas que detecta y las que no detecta cada uno (carpetas `detectadas` y `no_detectadas` dentro de [`resultados/YOLO`](../resultados/YOLO) y [`resultados/RTDETR`]((../resultados/RTDETR))). De ellas se ha seleccionado un pequeño número de imágenes representativas que se agrupan en las 4 combinaciones posibles.
 
 ### Matrículas que ambos modelos han sido capaces de detectar
 
@@ -169,7 +173,7 @@ A través de la evaluación de 200 imágenes con cada modelo se han guardado las
 | ![YOLO 00000](../resultados/YOLO/detectadas/00000.jpg) | ![RT-DETR 00000](../resultados/RTDETR/detectadas/00000.jpg) |
 | ![YOLO 1 (1)](<../resultados/YOLO/detectadas/1 (1).jpeg>) | ![RT-DETR 1 (1)](<../resultados/RTDETR/detectadas/1 (1).jpeg>) |
 
-**Conclusión:** Ambos modelos detectan sin problema las matrículas bien iluminadas y que están de frente a la cámara. En estas condiciones el tamaño de la matrícula, el contraste de los caracteres y la ausencia de deformaciones por perspectiva facilitan la localización, y la diferencia entre YOLO y RT-DETR no está en detectar o no, sino en la precisión de la caja y en la confianza.
+Ambos modelos detectan sin problema las matrículas bien iluminadas y que están de frente a la cámara. En estas condiciones el tamaño de la matrícula, el contraste de los caracteres y la ausencia de deformaciones por perspectiva facilitan la localización, y la diferencia entre YOLO y RT-DETR no está en detectar o no, sino en la precisión de la caja y en la confianza.
 
 ### Matrículas que solo ha conseguido detectar YOLO
 
@@ -178,7 +182,7 @@ A través de la evaluación de 200 imágenes con cada modelo se han guardado las
 | ![YOLO 1 (17)](<../resultados/YOLO/detectadas/1 (17).jpeg>) | ![RT-DETR 1 (17)](<../resultados/RTDETR/no_detectadas/1 (17).jpeg>) |
 | ![YOLO 1 (20)](<../resultados/YOLO/detectadas/1 (20).jpeg>) | ![RT-DETR 1 (20)](<../resultados/RTDETR/no_detectadas/1 (20).jpeg>) |
 
-**Conclusión:** En estas imágenes se aprecia que YOLO tiene mayor capacidad para detectar matrículas más lejanas y ladeadas, es decir, fuera de las condiciones ideales. Esto es coherente con que se entrenara con una resolución de entrada de 960 px  frente a los 640 px de RT-DETR.
+En estas imágenes se aprecia que YOLO tiene mayor capacidad para detectar matrículas más lejanas y ladeadas, es decir, fuera de las condiciones ideales. Esto es coherente con que se entrenara con una resolución de entrada de 960 px  frente a los 640 px de RT-DETR.
 
 ### Matrículas que solo ha conseguido detectar RT-DETR
 
@@ -187,7 +191,7 @@ A través de la evaluación de 200 imágenes con cada modelo se han guardado las
 | ![YOLO 1 (16)](<../resultados/YOLO/no_detectadas/1 (16).jpeg>) | ![RT-DETR 1 (16)](<../resultados/RTDETR/detectadas/1 (16).jpeg>) |
 | ![YOLO 1384LKJ-cgg](../resultados/YOLO/no_detectadas/1384LKJ-cgg.JPG) | ![RT-DETR 1384LKJ-cgg](../resultados/RTDETR/detectadas/1384LKJ-cgg.JPG) |
 
-**Conclusión:** En este caso se puede apreciar como  RT-DETR puede ofrecer un mejor rendimiento ante determinadas variaciones de orientación y perspectiva. 
+En este caso se puede apreciar como  RT-DETR puede ofrecer un mejor rendimiento ante determinadas variaciones de orientación y perspectiva. 
 
 ### Matrículas que no ha conseguido detectar ninguno de los dos modelos
 
@@ -195,22 +199,4 @@ A través de la evaluación de 200 imágenes con cada modelo se han guardado las
 |:---:|:---:|
 | ![YOLO 1 (24)](<../resultados/YOLO/no_detectadas/1 (24).jpeg>) | ![RT-DETR 1 (24)](<../resultados/RTDETR/no_detectadas/1 (24).jpeg>) |
 
-**Conclusión:** Este es el único caso en el que ninguno de los dos modelos ha conseguido detectar las matrículas. Esto podría deberse a que las condiciones de la imagen no favorecen la detección, ya que ambas matrículas aparecen ligeramente difuminadas y una de ellas tiene un tamaño muy reducido.
-
-
----
-
-## 6. Conclusiones
-
-1. **YOLO supera a RT-DETR en todas las métricas comparables**: +0.18 en mAP@50, +0.10 en mAP@50-95, +0.13 en F1 máximo y +0.11 en recall máximo.
-2. Ambos modelos comparten un **umbral óptimo de confianza ≈ 0.41**.
-3. YOLO es **más robusto al umbral** (curva F1 amplia) y detecta más matrículas reales (recall normalizado 0.87 vs 0.72).
-4. RT-DETR tiene un nivel alto de **falsos positivos** a umbrales bajos y su rendimiento se degrada más en objetos pequeños.
-5. YOLO requirió menos de la mitad de epochs (24 vs 50) para obtener mejores resultados.
-
-### Limitaciones de la comparativa
-
-- Los conjuntos de validación parecen distintos (1417 vs 978 instancias).
-- Distinto número de epochs y, probablemente, distintos hiperparámetros y tamaño de modelo.
-- Valores de curvas de entrenamiento leídos visualmente (aproximados).
-- Para una comparación rigurosa se recomienda evaluar ambos modelos sobre **el mismo split de validación/test**, con la misma resolución de entrada y umbral de IoU, y reportar también velocidad de inferencia (FPS/latencia) y tamaño del modelo.
+Este es el único caso en el que ninguno de los dos modelos ha conseguido detectar las matrículas. Esto podría deberse a que las condiciones de la imagen no favorecen la detección, ya que ambas matrículas aparecen ligeramente difuminadas y una de ellas tiene un tamaño muy reducido.

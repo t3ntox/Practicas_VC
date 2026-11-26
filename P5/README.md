@@ -8,7 +8,6 @@ En este directorio del repositorio encontrarán múltiples cuadernos jupyter, ca
 - [`conclusiones_comparativas.md`](./conclusiones_comparativas.md) -> explicación detallada de los distintos datos comparativos extraídos en `comparativa.ipynb`.
 - [`emociones_políticas.ipynb`](./emociones_políticas.ipynb) -> demostrador en directo: reacciones de partidos políticos según la emoción de la persona.
 - [`filtro_derechos.ipynb`](./filtro_derechos.ipynb) -> demostrador en directo: filtro humorístico de "derechos" según el país elegido.
-- [`INFORME_P5.md`](./INFORME_P5.md) -> informe técnico con diagramas de flujo del entrenamiento de los modelos 04, 05 y 06 y del funcionamiento detallado de `emociones_políticas`.
 
 Todos los cuadernos dependen del archivo [`comun.py`](./comun.py), que recoge las funciones comunes (detector de caras, landmarks, extractores de características, carga del dataset, cámara, etc.) para reducir la duplicidad en el código. Los dos demostradores utilizan además [`selector.py`](./selector.py), que dibuja el selector lateral de imágenes (partidos o banderas).
 
@@ -62,6 +61,33 @@ La red está inspirada en mini-Xception y cuenta con tan solo **92.791 parámetr
 - Cuatro bloques residuales de 16, 32, 96 y 160 filtros, con 2 convoluciones separables en profundidad, `BatchNormalization` y atajo 1x1.
 - Una convolución final con 7 filtros seguida de `GlobalAveragePooling` y *softmax*, sin capas densas.
 
+El siguiente diagrama resume la arquitectura de la red:
+
+```mermaid
+flowchart TD
+    A["Entrada 48x48x1"] --> B["Aumento de datos<br/>Flip · Rotación 0,03 · Zoom 0,1 · Traslación 0,05<br/>(solo activo al entrenar)"]
+    B --> C["Stem: 2 × (Conv 3x3, 8 filtros → BN → ReLU)<br/>→ 44x44x8"]
+    C --> D1["Bloque residual 16 → 22x22x16"]
+    D1 --> D2["Bloque residual 32 → 11x11x32"]
+    D2 --> D3["Bloque residual 96 → 6x6x96"]
+    D3 --> D4["Bloque residual 160 → 3x3x160"]
+    D4 --> E["Conv 3x3, 7 filtros → 3x3x7"]
+    E --> F["GlobalAveragePooling → 7"]
+    F --> G["Softmax → 7 probabilidades"]
+
+    subgraph RES["Bloque residual"]
+        direction LR
+        R0["x"] --> R1["SepConv 3x3 → BN → ReLU"]
+        R1 --> R2["SepConv 3x3 → BN"]
+        R2 --> R3["MaxPool 3x3 / 2"]
+        R0 --> R4["Atajo: Conv 1x1 / 2 → BN"]
+        R3 --> R5(("+"))
+        R4 --> R5
+    end
+
+    D1 -.-> RES
+```
+
 La arquitectura completa se encuentra en [arquitectura.txt](./informe_entrenamiento/arquitectura.txt). Las condiciones principales del entrenamiento son:
 - 80 épocas, batch de 128 y semilla fija (`SEED=42`)
 - Optimizador `AdamW` con `weight_decay=1e-4`, calentamiento lineal de 3 épocas hasta `lr=2e-3` y decaimiento coseno hasta `1e-5`
@@ -69,6 +95,29 @@ La arquitectura completa se encuentra en [arquitectura.txt](./informe_entrenamie
 - Pesos de clase balanceados y suavizados con raíz cuadrada (`PESO_CLASE_POTENCIA=0.5`) para no desestabilizar el gradiente
 - Un 10 % estratificado del train como validación, usado para seleccionar la mejor época (parada temprana con `patience=20`, aunque no llegó a activarse)
 - Precisión mixta si hay GPU; el modelo final se reconstruye y exporta siempre en `float32` para inferir en CPU
+
+El flujo de entrada y salida de la red durante el entrenamiento es el siguiente:
+
+```mermaid
+flowchart LR
+    subgraph IN["Entrada"]
+        direction TB
+        A["Imagen del dataset<br/>gris, cara recortada"] --> B["Redimensionar 48x48"]
+        B --> C["equalizeHist"]
+        C --> D["/255 → [0, 1]"]
+        D --> E["Tensor (128, 48, 48, 1)"]
+    end
+
+    CNN[["CNN mini-Xception<br/>aumento de datos activo"]]
+
+    subgraph OUT["Salida"]
+        direction TB
+        F["7 probabilidades"] --> G["Entropía cruzada vs one-hot<br/>label smoothing 0,1 · pesos de clase"]
+        G --> H["AdamW actualiza los pesos"]
+    end
+
+    E --> CNN --> F
+```
 
 El entrenamiento se realizó en CPU (16 núcleos, sin GPU) con TensorFlow 2.21 / Keras 3.15 y tardó unos **60 minutos** (≈ 44 s por época). La mejor época fue la 61, con un accuracy de validación de 0,597.
 
@@ -141,9 +190,36 @@ Ambos demostradores usan el detector de caras DNN de OpenCV (ResNet10-SSD) y se 
 ### [Emociones políticas](./emociones_políticas.ipynb)
 La persona se pone delante de la cámara, elige un partido político (PSOE, PP, Vox o Frente Amplio) y, según la expresión que haga, aparece sobre su cabeza una imagen que hace referencia a dicho partido y emoción. Las imágenes están en [`emotion-images`](./emotion-images) (una carpeta por partido con una imagen por emoción) y los logotipos del selector en [`logos-partidos`](./logos-partidos).
 
+> **Aviso:** todas las imágenes de políticos que aparecen en [`emotion-images`](./emotion-images) han sido generadas con IA y tienen un tono **satírico y humorístico**. No son fotografías reales ni representan declaraciones o actitudes reales de las personas o partidos que aparecen en ellas.
+
 1. Se detecta la cara más grande con el DNN y se suaviza su caja entre frames.
 2. Con los **landmarks de MediaPipe** se calcula la inclinación de la cabeza, se gira la imagen para dejar los ojos en horizontal antes de clasificar y se ancla la imagen al punto de la frente, girándola con la cabeza.
 3. Se obtienen las probabilidades de la emoción con el modelo activo y se suavizan con una **media móvil exponencial** (`ALPHA_SUAVIZADO=0.35`). Así la imagen no parpadea cuando el modelo duda entre dos emociones y la confianza mostrada es una probabilidad real.
+
+El flujo de la CNN en el vídeo, desde el frame de la webcam hasta la imagen mostrada, es el siguiente:
+
+```mermaid
+flowchart LR
+    subgraph IN["Generación de la entrada"]
+        direction TB
+        A["Frame webcam → gris"] --> B["Detector DNN<br/>cara más grande"]
+        B --> C["Landmarks<br/>alinear los ojos"]
+        C --> D["Recortar cara (−5 %)"]
+        D --> E["Redimensionar 48x48<br/>equalizeHist · /255"]
+        E --> F["Tensor (1, 48, 48, 1)"]
+    end
+
+    CNN[["CNN mini-Xception<br/>tf.function · ≈ 2,7 ms<br/>aumento de datos inactivo"]]
+
+    subgraph OUT["Salida"]
+        direction TB
+        G["7 probabilidades"] --> H["Media móvil exponencial<br/>α = 0,35"]
+        H --> I["argmax → emoción + confianza"]
+        I --> J["Imagen del partido<br/>sobre la frente"]
+    end
+
+    F --> CNN --> G
+```
 
 Con la tecla `m` se puede cambiar en directo entre la **CNN propia**, un **modelo clásico** y **DeepFace** (este último en un hilo aparte por su latencia), mostrando en pantalla el modelo activo y su tiempo por cara. Todos comparten la misma interfaz `probs(cara_gris)`.
 
@@ -168,33 +244,6 @@ Para que la medición se vea fluida, los análisis pesados se lanzan en hilos in
 - `dataset/` — carpetas `train` y `test` con una subcarpeta por emoción, más `Selfie-dataset.tar.gz` (hay que descomprimirlo en `dataset/` antes de ejecutar `preparar_dataset.ipynb`). El FER-2013 se obtiene de Kaggle.
 - `modelos/` — modelos entrenados (`.joblib` y `cnn.keras`) y modelos preentrenados necesarios para los demostradores: `deploy.prototxt.txt` y `res10_300x300_ssd_iter_140000.caffemodel` (detector de caras), `face_landmarker.task` (landmarks, se descarga automáticamente si no existe) y `selfie_multiclass_256x256.tflite` (segmentación, también se descarga automáticamente).
 - `emotion-images/`, `logos-partidos/`, `banderas/` y `paises.csv` — recursos de los demostradores.
-
-Estructura de la carpeta
-```
-P5
-|- banderas/                         #Banderas de los países (caché del selector)
-|- dataset/                          #Dataset de emociones (train/test) y Selfie-dataset
-|- emotion-images/                   #Imágenes de reacción por partido y emoción
-|- informe_entrenamiento/            #Gráficas, tablas y resúmenes del entrenamiento y la comparativa
-|- logos-partidos/                   #Logotipos del selector de partidos
-|- modelos/                          #Modelos entrenados y modelos preentrenados
-|- comparativa.ipynb                 #Comparativa de todos los modelos y frente a DeepFace
-|- conclusiones_comparativas.md      #Explicación de los datos de la comparativa
-|- comun.py                          #Funciones comunes a todos los cuadernos
-|- emociones_políticas.ipynb         #Demostrador de reacciones políticas
-|- entrenar_01_hog_svm.ipynb         #Entrenamiento HOG + SVM
-|- entrenar_02_lbp_svm.ipynb         #Entrenamiento LBP + SVM
-|- entrenar_03_hoglbp_pca_svm.ipynb  #Entrenamiento HOG + LBP + PCA + SVM
-|- entrenar_04_autocaras_pca_svm.ipynb #Entrenamiento autocaras (PCA) + SVM
-|- entrenar_05_hog_pca_knn.ipynb     #Entrenamiento HOG + PCA + KNN
-|- entrenar_06_cnn.ipynb             #Entrenamiento de la CNN propia
-|- filtro_derechos.ipynb             #Demostrador del filtro de derechos
-|- INFORME_P5.md                     #Informe técnico con diagramas de flujo
-|- paises.csv                        #Factores por país del filtro de derechos
-|- preparar_dataset.ipynb            #Preparación de la clase duckface
-|- README.md
-|- selector.py                       #Selector lateral de imágenes
-```
 
 ------
 

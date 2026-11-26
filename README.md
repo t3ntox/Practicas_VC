@@ -108,3 +108,35 @@ P4
 |- YOLO_VLM.ipynb                                  # Cuaderno Jupyter para la integración de YOLO con VLM
 |- yolo11l.pt                                      
 ```
+
+### [PRÁCTICA 5](https://github.com/t3ntox/Practicas_VC/tree/main/P5)
+
+En esta quinta práctica se construye un modelo biométrico propio capaz de reconocer 7 expresiones faciales (`angry`, `duckface`, `fear`, `happy`, `neutral`, `sad` y `surprise`). Para ello se entrenan cinco clasificadores clásicos (HOG, LBP y autocaras con SVM o KNN) y una red convolucional propia tipo mini-Xception, que se comparan entre sí y con DeepFace. El modelo elegido, la CNN, se aplica después en dos demostradores en tiempo real con webcam: reacciones de partidos políticos según la emoción y un filtro satírico de "derechos" por país.
+
+El código se reparte en varios cuadernos Jupyter (preparación del dataset, un cuaderno por modelo, la comparativa y los dos demostradores) que comparten las funciones del script `comun.py`. Se incluye en la carpeta de esta práctica un [README](https://github.com/t3ntox/Practicas_VC/tree/main/P5/README.md) donde se desarrolla el dataset, el entrenamiento y los resultados de cada modelo, la comparativa y el funcionamiento de los demostradores, junto con los diagramas de flujo de la CNN.
+
+Estructura de la carpeta
+```
+P5
+|- banderas/                         #Banderas de los países (caché del selector)
+|- dataset/                          #Dataset de emociones (train/test) y Selfie-dataset
+|- emotion-images/                   #Imágenes de reacción por partido y emoción
+|- informe_entrenamiento/            #Gráficas, tablas y resúmenes del entrenamiento y la comparativa
+|- logos-partidos/                   #Logotipos del selector de partidos
+|- modelos/                          #Modelos entrenados y modelos preentrenados
+|- comparativa.ipynb                 #Comparativa de todos los modelos y frente a DeepFace
+|- conclusiones_comparativas.md      #Explicación de los datos de la comparativa
+|- comun.py                          #Funciones comunes a todos los cuadernos
+|- emociones_políticas.ipynb         #Demostrador de reacciones políticas
+|- entrenar_01_hog_svm.ipynb         #Entrenamiento HOG + SVM
+|- entrenar_02_lbp_svm.ipynb         #Entrenamiento LBP + SVM
+|- entrenar_03_hoglbp_pca_svm.ipynb  #Entrenamiento HOG + LBP + PCA + SVM
+|- entrenar_04_autocaras_pca_svm.ipynb #Entrenamiento autocaras (PCA) + SVM
+|- entrenar_05_hog_pca_knn.ipynb     #Entrenamiento HOG + PCA + KNN
+|- entrenar_06_cnn.ipynb             #Entrenamiento de la CNN propia
+|- filtro_derechos.ipynb             #Demostrador del filtro de derechos
+|- paises.csv                        #Factores por país del filtro de derechos
+|- preparar_dataset.ipynb            #Preparación de la clase duckface
+|- README.md
+|- selector.py                       #Selector lateral de imágenes
+```

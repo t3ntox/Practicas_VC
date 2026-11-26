@@ -68,18 +68,18 @@ Recogida en las columnas `ms_por_cara`, `ms_por_imagen_en_lote` y `carga_s` de [
 
 | Modelo | ms / cara | ms / imagen en lote | Carga (s) |
 | :----- | :-------: | :-----------------: | :-------: |
-| HOG + SVM | 32.5 | 31.7 | 0.25 |
-| LBP + SVM | 17.6 | 16.9 | 0.08 |
-| HOG + LBP + PCA + SVM | 31.0 | 23.3 | 0.11 |
-| Autocaras (PCA) + SVM | 4.6 | 3.7 | 0.05 |
-| HOG + PCA + KNN | 5.1 | 1.4 | 0.01 |
-| **CNN mini-Xception** | **2.7** | **0.4** | 0.50 |
-| CNN mini-Xception + TTA | 5.4 | - | - |
+| HOG + SVM | 34.7 | 33.0 | 0.43 |
+| LBP + SVM | 16.9 | 16.4 | 0.20 |
+| HOG + LBP + PCA + SVM | 23.1 | 21.9 | 0.25 |
+| Autocaras (PCA) + SVM | 4.9 | 3.8 | 0.06 |
+| HOG + PCA + KNN | 8.7 | 1.1 | 0.07 |
+| **CNN mini-Xception** | **3.2** | **0.3** | 6.86 |
+| CNN mini-Xception + TTA | 6.4 | - | - |
 
-- La CNN es el modelo más rápido por cara (≈ 2,7 ms), y con TTA (≈ 5,4 ms) sigue siendo de sobra para tiempo real.
-- Las SVM sobre HOG o LBP son las más lentas, porque cada predicción se compara con miles de vectores de soporte. Su tiempo apenas baja al trabajar en lote (32,5 → 31,7 ms en HOG + SVM), lo que confirma que el coste está en el propio clasificador y no en la extracción.
-- KNN y la CNN, en cambio, se aceleran mucho en lote (KNN de 5,1 a 1,4 ms y la CNN de 2,7 a 0,4 ms), ya que gran parte de su coste por cara es fijo por llamada y se reparte al vectorizar.
-- Los tiempos de carga son despreciables en todos los casos (como mucho 0,5 s en la CNN, por la inicialización de Keras).
+- La CNN es el modelo más rápido por cara (≈ 3,2 ms), y con TTA (≈ 6,4 ms) sigue siendo de sobra para tiempo real.
+- Las SVM sobre HOG o LBP son las más lentas, porque cada predicción se compara con miles de vectores de soporte. Su tiempo apenas baja al trabajar en lote (34,7 → 33,0 ms en HOG + SVM), lo que confirma que el coste está en el propio clasificador y no en la extracción.
+- KNN y la CNN, en cambio, se aceleran mucho en lote (KNN de 8,7 a 1,1 ms y la CNN de 3,2 a 0,3 ms), ya que gran parte de su coste por cara es fijo por llamada y se reparte al vectorizar.
+- Los tiempos de carga son despreciables en los clásicos (menos de 0,5 s). La CNN tarda unos 7 s, pero casi todo ese tiempo es la primera importación e inicialización de TensorFlow/Keras, que solo se paga una vez al arrancar.
 
 ------
 
@@ -88,7 +88,7 @@ Recogido en las columnas `tamaño_MB`, `entrenamiento_s` y `parametros` de [comp
 
 | Modelo | Tamaño (MB) | Entrenamiento |
 | :----- | :---------: | :-----------: |
-| HOG + SVM | 389.3 | - |
+| HOG + SVM | 389.3 | 3111 s (≈ 52 min) |
 | LBP + SVM | 147.8 | 1598 s (≈ 27 min) |
 | HOG + LBP + PCA + SVM | 214.7 | 1372 s (≈ 23 min) |
 | Autocaras (PCA) + SVM | 36.1 | 274 s (≈ 4,6 min) |
@@ -98,7 +98,7 @@ Recogido en las columnas `tamaño_MB`, `entrenamiento_s` y `parametros` de [comp
 - El tamaño de las SVM crece con la dimensión de las características, ya que el modelo guarda los vectores de soporte: 1764 valores en HOG, 929 componentes en HOG + LBP + PCA, 640 en LBP y 150 en las autocaras.
 - KNN guarda todo el train proyectado a 100 componentes (30.241 x 100 valores), lo que da sus 12,5 MB, y su entrenamiento se limita a indexarlo.
 - La CNN, con 92.791 parámetros, ocupa unas 730 veces menos que HOG + SVM y unas 400 veces menos que el mejor clásico. Es, eso sí, la que más tarda en entrenar (en CPU, sin GPU).
-- El tiempo de HOG + SVM no figura porque `registro_modelos.json` no contiene su entrada.
+- HOG + SVM es el clásico más caro de entrenar (≈ 52 min), casi tanto como la CNN, por la dimensión del HOG (1764 valores) y el gran número de vectores de soporte.
 
 ------
 
@@ -107,7 +107,7 @@ Recogido en [comparativa_modelos.png](./informe_entrenamiento/comparativa_modelo
 
 ![Comparativa de modelos](./informe_entrenamiento/comparativa_modelos.png)
 
-Los modelos forman tres grupos. Arriba a la izquierda, la CNN (sola y con TTA) que, para nuestra sorpresa, es a la vez la más precisa, la más rápida y la más ligera Abajo a la izquierda, los clásicos con PCA de pocas componentes (autocaras y KNN), rápidos y ligeros pero con un F1 en torno a 0,50. A la derecha, las SVM sobre HOG y LBP, las más lentas y pesadas; entre ellas, las que usan HOG son las únicas que se acercan a la CNN en calidad.
+Los modelos forman tres grupos. Arriba a la izquierda, la CNN (sola y con TTA) que, para nuestra sorpresa, es a la vez la más precisa, la más rápida y la más ligera. Abajo a la izquierda, los clásicos con PCA de pocas componentes (autocaras y KNN), rápidos y ligeros pero con un F1 en torno a 0,50. A la derecha, las SVM sobre HOG y LBP, las más lentas y pesadas; entre ellas, las que usan HOG son las únicas que se acercan a la CNN en calidad.
 
 ------
 
@@ -116,16 +116,16 @@ Recogido en [comparativa_deepface.csv](./informe_entrenamiento/comparativa_deepf
 
 | Modelo | Accuracy | F1 macro | ms / cara |
 | :----- | :------: | :------: | :-------: |
-| **CNN mini-Xception + TTA** | **0.597** | **0.591** | 5.4 |
-| CNN mini-Xception | 0.587 | 0.580 | **2.7** |
-| DeepFace.analyze | 0.563 | 0.563 | 14.1 |
-| HOG + SVM | 0.528 | 0.530 | 32.5 |
-| HOG + LBP + PCA + SVM | 0.527 | 0.529 | 31.0 |
-| HOG + PCA + KNN | 0.478 | 0.471 | 5.1 |
-| Autocaras (PCA) + SVM | 0.472 | 0.473 | 4.6 |
-| LBP + SVM | 0.402 | 0.402 | 17.6 |
+| **CNN mini-Xception + TTA** | **0.597** | **0.591** | 6.4 |
+| CNN mini-Xception | 0.587 | 0.580 | **3.2** |
+| DeepFace.analyze | 0.563 | 0.563 | 12.4 |
+| HOG + SVM | 0.528 | 0.530 | 34.7 |
+| HOG + LBP + PCA + SVM | 0.527 | 0.529 | 23.1 |
+| HOG + PCA + KNN | 0.478 | 0.471 | 8.7 |
+| Autocaras (PCA) + SVM | 0.472 | 0.473 | 4.9 |
+| LBP + SVM | 0.402 | 0.402 | 16.9 |
 
-- La CNN propia supera a DeepFace tanto sin TTA (+2,3 puntos de accuracy) como con TTA (+3,3 puntos), y es unas 5 veces más rápida por cara sin TTA y unas 2,6 veces con TTA.
+- La CNN propia supera a DeepFace tanto sin TTA (+2,3 puntos de accuracy) como con TTA (+3,3 puntos), y es unas 4 veces más rápida por cara sin TTA y unas 2 veces con TTA.
 - Ninguno de los clásicos alcanza a DeepFace: los mejores, HOG + SVM y HOG + LBP + PCA + SVM, quedan unos 3,5 puntos por debajo.
 - Al ser un subconjunto equilibrado, la accuracy coincide prácticamente con la accuracy balanceada. Con 600 caras, las diferencias menores de un punto (unas 6 caras) no son significativas, por lo que HOG + SVM y HOG + LBP + PCA + SVM, o KNN y las autocaras, deben considerarse empatados en esta prueba.
 - DeepFace se evalúa en su propio dominio (FER-2013), lo que juega a su favor, y además no requiere entrenar nada; a cambio, es una caja negra con clases fijas que no permite añadir `duckface`.
@@ -133,4 +133,4 @@ Recogido en [comparativa_deepface.csv](./informe_entrenamiento/comparativa_deepf
 ------
 
 ## Conclusión
-Los datos de la comparativa apuntan en la misma dirección: la **CNN propia** es el mejor modelo en calidad (F1 macro 0,615, y 0,636 con TTA), el más rápido por cara y el más ligero, y supera a DeepFace sobre las mismas caras. Por ello es el modelo elegido para el prototipo en tiempo real, usado sin TTA en el demostrador (≈ 2,7 ms por cara) y dejando el TTA como mejora opcional. Entre los clásicos, la combinación de HOG con una SVM es la única que se acerca, pero a costa de ser unas 12 veces más lenta y cientos de veces más pesada.
+Los datos de la comparativa apuntan en la misma dirección: la **CNN propia** es el mejor modelo en calidad (F1 macro 0,615, y 0,636 con TTA), el más rápido por cara y el más ligero, y supera a DeepFace sobre las mismas caras. Por ello es el modelo elegido para el prototipo en tiempo real, usado sin TTA en el demostrador (≈ 3,2 ms por cara) y dejando el TTA como mejora opcional. Entre los clásicos, la combinación de HOG con una SVM es la única que se acerca, pero a costa de ser entre 7 y 11 veces más lenta y cientos de veces más pesada.

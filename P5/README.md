@@ -1,7 +1,7 @@
 # Práctica 5
 
-En este directorio del repositorio encontrarán múltiples cuadernos jupyter, cada uno destinado a una serie de tareas concretas. El objetivo de la práctica es construir un **modelo biométrico propio** capaz de reconocer 7 expresiones faciales (`angry`, `duckface`, `fear`, `happy`, `neutral`, `sad` y `surprise`), compararlo con alternativas clásicas y con DeepFace, y aplicarlo en dos demostradores con webcam. Los distintos archivos son:
-- [`preparar_dataset.ipynb`](./preparar_dataset.ipynb) -> destinado a la construcción de la clase `duckface` a partir del Selfie-dataset y de Roboflow y al recuento final por clase.
+En este directorio del repositorio encontrarán múltiples cuadernos jupyter, cada uno destinado a una serie de tareas concretas. El objetivo de la práctica es construir un **modelo biométrico propio** capaz de reconocer 7 expresiones faciales (`angry`, `duckface`, `fear`, `happy`, `neutral`, `sad` y `surprise`), compararlo con alternativas clásicas y con DeepFace; y por otro lado, hacer uso de DeepFace para el reconocimiento de distintas características a partir de un rostro (`género`, `edad`, `etnia` y `color de pelo` ). Los distintos archivos son:
+- [`preparar_dataset.ipynb`](./preparar_dataset.ipynb) -> destinado a la construcción de la clase `duckface`, adaptado al formato FER-2013, a partir del Selfie-dataset y de Roboflow y al recuento final por clase.
 - [`entrenar_01_hog_svm.ipynb`](./entrenar_01_hog_svm.ipynb), [`entrenar_02_lbp_svm.ipynb`](./entrenar_02_lbp_svm.ipynb), [`entrenar_03_hoglbp_pca_svm.ipynb`](./entrenar_03_hoglbp_pca_svm.ipynb), [`entrenar_04_autocaras_pca_svm.ipynb`](./entrenar_04_autocaras_pca_svm.ipynb), [`entrenar_05_hog_pca_knn.ipynb`](./entrenar_05_hog_pca_knn.ipynb) -> destinados al entrenamiento y evaluación de los cinco clasificadores clásicos.
 - [`entrenar_06_cnn.ipynb`](./entrenar_06_cnn.ipynb) -> destinado al entrenamiento de la red convolucional propia (tipo mini-Xception) junto a las gráficas y tablas del [informe de entrenamiento](./informe_entrenamiento).
 - [`comparativa.ipynb`](./comparativa.ipynb) -> destinado a evaluar todos los modelos en las mismas condiciones (calidad, velocidad y coste) y a compararlos con DeepFace.
@@ -22,13 +22,13 @@ El dataset contiene **30.241 imágenes de entrenamiento y 7.396 de test**, en es
 
 | Origen | Clases | Formato |
 |---|---|---|
-| FER-2013 (Kaggle) | angry, fear, happy, neutral, sad, surprise | 48x48, gris, cara ya recortada |
-| Selfie-dataset (columna `duck_face`) | duckface | fotos de móvil en color, recortadas con el detector DNN |
-| Roboflow (`middle-tongue-duckface`) | duckface | caras convertidas al formato FER (gris, 48x48) |
+| [FER-2013 (Kaggle)](https://www.kaggle.com/datasets/msambare/fer2013) | angry, fear, happy, neutral, sad, surprise | 48x48, gris, cara ya recortada |
+| [Selfie-dataset (columna `duck_face`)](https://www.crcv.ucf.edu/research/data-sets/selfie/) | duckface | fotos de móvil en color, recortadas con el detector DNN |
+| [Roboflow (`middle-tongue-duckface`)](https://universe.roboflow.com/merge-j4uow/middle-tongue-duckface) | duckface | caras convertidas al formato FER (gris, 48x48) |
 
 Las decisiones principales, desarrolladas en [`preparar_dataset.ipynb`](./preparar_dataset.ipynb), son:
 - **`disgust` eliminada**: en FER-2013 solo cuenta con el 1,4 % de las imágenes de train y su mezcla con `angry` empeoraba ambas clases.
-- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para que el encuadre de entrenamiento e inferencia sea idéntico), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija.
+- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para que el encuadre de entrenamiento e inferencia sea idéntico), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además debido a los defectos de anotación, nos vimos obligados a hacer una limpieza manual de datos.
 - **Roboflow como fuente adicional**: para ampliar la clase `duckface` se añaden también las caras del proyecto `middle-tongue-duckface` de Roboflow, convertidas al mismo formato que el resto del dataset.
 - **Sesgo de dominio conocido**: todas las imágenes de `duckface` proceden de selfies de móvil y de Roboflow, mientras que el resto proviene de FER-2013, por lo que parte de su buen resultado puede deberse al dominio y no solo a la expresión.
 

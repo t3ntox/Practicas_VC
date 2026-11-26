@@ -23,7 +23,6 @@ Recogidas en [comparativa_modelos.csv](./informe_entrenamiento/comparativa_model
 | CNN mini-Xception | 0.605 | 0.616 | 0.615 | 0.593 |
 | **CNN mini-Xception + TTA** | **0.625** | **0.639** | **0.636** | **0.612** |
 
-**Lectura:**
 - Las cuatro métricas ordenan los modelos de la misma forma: CNN con TTA, CNN, HOG + LBP + PCA + SVM, HOG + SVM, autocaras, HOG + PCA + KNN y LBP + SVM.
 - La accuracy balanceada es algo mayor que la accuracy en todos los modelos, lo que indica que las clases minoritarias (`duckface` y `surprise`) se reconocen mejor que la media y que los pesos de clase cumplen su función.
 - Al quitar `duckface` la accuracy baja entre 1,1 y 1,9 puntos en todos los modelos. La clase propia ayuda al resultado global, pero no lo explica: el orden entre modelos se mantiene igual.
@@ -43,7 +42,6 @@ Recogido en [comparativa_f1_por_clase.csv](./informe_entrenamiento/comparativa_f
 | HOG + PCA + KNN | 0.378 | 0.716 | 0.379 | 0.636 | 0.422 | 0.335 | 0.618 |
 | CNN mini-Xception | **0.500** | **0.893** | **0.426** | **0.808** | **0.540** | 0.439 | 0.701 |
 
-**Lectura:**
 - Todos los modelos coinciden en qué clases son **fáciles** (`duckface`, `happy` y `surprise`) y cuáles **difíciles** (`fear`, `sad` y `angry`). Las difíciles son también las de etiquetas más ambiguas en FER-2013.
 - La CNN es la mejor en 5 de las 7 clases. Su ventaja es clara en `duckface`, `happy` y `angry` (entre 6 y 11 puntos sobre el mejor clásico de cada clase), mucho menor en `neutral` (unos 3 puntos) y prácticamente nula en `fear`.
 - En `sad` y `surprise` el mejor clásico (HOG + LBP + PCA + SVM) supera ligeramente a la CNN, aunque por menos de 1,5 puntos.
@@ -56,7 +54,6 @@ Recogidas en [comparativa_confusiones.png](./informe_entrenamiento/comparativa_c
 
 ![Comparativa de matrices de confusión](./informe_entrenamiento/comparativa_confusiones.png)
 
-**Lectura:**
 - En todos los modelos la diagonal es clara en `duckface`, `happy` y `surprise`, mientras que `angry`, `fear`, `neutral` y `sad` forman un bloque en el que los errores se reparten entre sí.
 - Los modelos más débiles tienden a "atraer" las predicciones hacia las clases más abundantes: LBP + SVM y HOG + PCA + KNN muestran una columna de `happy` (y `neutral` en el caso de KNN) más marcada, ya que KNN no admite pesos de clase y LBP no separa bien las expresiones.
 - El TTA mejora el recall de todas las clases de la CNN, con la mayor subida en `duckface` (0,86 → 0,91).
@@ -79,7 +76,6 @@ Recogida en las columnas `ms_por_cara`, `ms_por_imagen_en_lote` y `carga_s` de [
 | **CNN mini-Xception** | **2.7** | **0.4** | 0.50 |
 | CNN mini-Xception + TTA | 5.4 | - | - |
 
-**Lectura:**
 - La CNN es el modelo más rápido por cara (≈ 2,7 ms), y con TTA (≈ 5,4 ms) sigue siendo de sobra para tiempo real.
 - Las SVM sobre HOG o LBP son las más lentas, porque cada predicción se compara con miles de vectores de soporte. Su tiempo apenas baja al trabajar en lote (32,5 → 31,7 ms en HOG + SVM), lo que confirma que el coste está en el propio clasificador y no en la extracción.
 - KNN y la CNN, en cambio, se aceleran mucho en lote (KNN de 5,1 a 1,4 ms y la CNN de 2,7 a 0,4 ms), ya que gran parte de su coste por cara es fijo por llamada y se reparte al vectorizar.
@@ -99,7 +95,6 @@ Recogido en las columnas `tamaño_MB`, `entrenamiento_s` y `parametros` de [comp
 | HOG + PCA + KNN | 12.5 | 1,8 s |
 | **CNN mini-Xception** | **0.5** | 3581 s (≈ 60 min) |
 
-**Lectura:**
 - El tamaño de las SVM crece con la dimensión de las características, ya que el modelo guarda los vectores de soporte: 1764 valores en HOG, 929 componentes en HOG + LBP + PCA, 640 en LBP y 150 en las autocaras.
 - KNN guarda todo el train proyectado a 100 componentes (30.241 x 100 valores), lo que da sus 12,5 MB, y su entrenamiento se limita a indexarlo.
 - La CNN, con 92.791 parámetros, ocupa unas 730 veces menos que HOG + SVM y unas 400 veces menos que el mejor clásico. Es, eso sí, la que más tarda en entrenar (en CPU, sin GPU).
@@ -112,7 +107,7 @@ Recogido en [comparativa_modelos.png](./informe_entrenamiento/comparativa_modelo
 
 ![Comparativa de modelos](./informe_entrenamiento/comparativa_modelos.png)
 
-**Lectura:** los modelos forman tres grupos. Arriba a la izquierda, la CNN (sola y con TTA), que es a la vez la más precisa, la más rápida y la más ligera. Abajo a la izquierda, los clásicos con PCA de pocas componentes (autocaras y KNN), rápidos y ligeros pero con un F1 en torno a 0,50. A la derecha, las SVM sobre HOG y LBP, las más lentas y pesadas; entre ellas, las que usan HOG son las únicas que se acercan a la CNN en calidad.
+Los modelos forman tres grupos. Arriba a la izquierda, la CNN (sola y con TTA) que, para nuestra sorpresa, es a la vez la más precisa, la más rápida y la más ligera Abajo a la izquierda, los clásicos con PCA de pocas componentes (autocaras y KNN), rápidos y ligeros pero con un F1 en torno a 0,50. A la derecha, las SVM sobre HOG y LBP, las más lentas y pesadas; entre ellas, las que usan HOG son las únicas que se acercan a la CNN en calidad.
 
 ------
 
@@ -130,7 +125,6 @@ Recogido en [comparativa_deepface.csv](./informe_entrenamiento/comparativa_deepf
 | Autocaras (PCA) + SVM | 0.472 | 0.473 | 4.6 |
 | LBP + SVM | 0.402 | 0.402 | 17.6 |
 
-**Lectura:**
 - La CNN propia supera a DeepFace tanto sin TTA (+2,3 puntos de accuracy) como con TTA (+3,3 puntos), y es unas 5 veces más rápida por cara sin TTA y unas 2,6 veces con TTA.
 - Ninguno de los clásicos alcanza a DeepFace: los mejores, HOG + SVM y HOG + LBP + PCA + SVM, quedan unos 3,5 puntos por debajo.
 - Al ser un subconjunto equilibrado, la accuracy coincide prácticamente con la accuracy balanceada. Con 600 caras, las diferencias menores de un punto (unas 6 caras) no son significativas, por lo que HOG + SVM y HOG + LBP + PCA + SVM, o KNN y las autocaras, deben considerarse empatados en esta prueba.

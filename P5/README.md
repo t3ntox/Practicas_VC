@@ -4,12 +4,12 @@ En este directorio del repositorio encontrarán múltiples cuadernos jupyter, ca
 - [`preparar_dataset.ipynb`](./preparar_dataset.ipynb) -> destinado a la construcción de la clase `duckface`, adaptado al formato FER-2013, a partir del Selfie-dataset y de Roboflow y al recuento final por clase.
 - [`entrenar_01_hog_svm.ipynb`](./entrenar_01_hog_svm.ipynb), [`entrenar_02_lbp_svm.ipynb`](./entrenar_02_lbp_svm.ipynb), [`entrenar_03_hoglbp_pca_svm.ipynb`](./entrenar_03_hoglbp_pca_svm.ipynb), [`entrenar_04_autocaras_pca_svm.ipynb`](./entrenar_04_autocaras_pca_svm.ipynb), [`entrenar_05_hog_pca_knn.ipynb`](./entrenar_05_hog_pca_knn.ipynb) -> destinados al entrenamiento y evaluación de los cinco clasificadores clásicos.
 - [`entrenar_06_cnn.ipynb`](./entrenar_06_cnn.ipynb) -> destinado al entrenamiento de la red convolucional propia (tipo mini-Xception) junto a las gráficas y tablas del [informe de entrenamiento](./informe_entrenamiento).
-- [`comparativa.ipynb`](./comparativa.ipynb) -> destinado a evaluar todos los modelos en las mismas condiciones (calidad, velocidad y coste) y a compararlos con DeepFace.
+- [`comparativa.ipynb`](./comparativa.ipynb) -> destinado a evaluar todos los modelos en las mismas condiciones y a compararlos con DeepFace.
 - [`conclusiones_comparativas.md`](./conclusiones_comparativas.md) -> explicación detallada de los distintos datos comparativos extraídos en `comparativa.ipynb`.
-- [`emociones_políticas.ipynb`](./emociones_políticas.ipynb) -> demostrador en directo: reacciones de partidos políticos según la emoción de la persona.
-- [`filtro_derechos.ipynb`](./filtro_derechos.ipynb) -> demostrador en directo: filtro humorístico de "derechos" según el país elegido.
+- [`emociones_políticas.ipynb`](./emociones_políticas.ipynb) -> resultado en directo: reacciones de partidos políticos según la emoción de la persona.
+- [`filtro_derechos.ipynb`](./filtro_derechos.ipynb) -> resultado en directo: filtro humorístico de "derechos" según el país elegido.
 
-Todos los cuadernos dependen del archivo [`comun.py`](./comun.py), que recoge las funciones comunes (detector de caras, landmarks, extractores de características, carga del dataset, cámara, etc.) para reducir la duplicidad en el código. Los dos demostradores utilizan además [`selector.py`](./selector.py), que dibuja el selector lateral de imágenes (partidos o banderas).
+Todos los cuadernos dependen del archivo [`comun.py`](./comun.py), que recoge las funciones comunes. Los dos demostradores utilizan además [`selector.py`](./selector.py), que dibuja el selector lateral de imágenes.
 
 ### 👥 Autores:
 - [Enrique Sosa Ojeda](https://github.com/Enric1005)
@@ -24,13 +24,13 @@ El dataset contiene **30.241 imágenes de entrenamiento y 7.396 de test**, en es
 |---|---|---|
 | [FER-2013 (Kaggle)](https://www.kaggle.com/datasets/msambare/fer2013) | angry, fear, happy, neutral, sad, surprise | 48x48, gris, cara ya recortada |
 | [Selfie-dataset (columna `duck_face`)](https://www.crcv.ucf.edu/research/data-sets/selfie/) | duckface | fotos de móvil en color, recortadas con el detector DNN |
-| [Roboflow (`middle-tongue-duckface`)](https://universe.roboflow.com/merge-j4uow/middle-tongue-duckface) | duckface | caras convertidas al formato FER (gris, 48x48) |
+| [Roboflow (`middle-tongue-duckface`)](https://universe.roboflow.com/merge-j4uow/middle-tongue-duckface) | duckface | caras convertidas al formato FER |
 
-Las decisiones principales, desarrolladas en [`preparar_dataset.ipynb`](./preparar_dataset.ipynb), son:
+Las decisiones tomadas en [`preparar_dataset.ipynb`](./preparar_dataset.ipynb), son:
 - **`disgust` eliminada**: en FER-2013 solo cuenta con el 1,4 % de las imágenes de train y su mezcla con `angry` empeoraba ambas clases.
-- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para que el encuadre de entrenamiento e inferencia sea idéntico), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además debido a los defectos de anotación, nos vimos obligados a hacer una limpieza manual de datos.
+- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para trabajar en igualdad de condiciones), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además debido a los defectos de anotación, hemos debido hacer una limpieza a mano de determinadas imagenes.
 - **Roboflow como fuente adicional**: para ampliar la clase `duckface` se añaden también las caras del proyecto `middle-tongue-duckface` de Roboflow, convertidas al mismo formato que el resto del dataset.
-- **Sesgo de dominio conocido**: todas las imágenes de `duckface` proceden de selfies de móvil y de Roboflow, mientras que el resto proviene de FER-2013, por lo que parte de su buen resultado puede deberse al dominio y no solo a la expresión.
+- **Sesgo de dominio conocido**: todas las imágenes de `duckface` proceden de selfies de móvil y de Roboflow, mientras que el resto proviene de FER-2013, por lo que parte de su resultado puede deberse al dominio y no solo a la expresión.
 
 El desbalance entre clases (`happy` ≈ 24 % frente a `duckface` ≈ 6,5 %) se compensa durante el entrenamiento con pesos de clase. La distribución completa se encuentra en [distribucion_clases.csv](./informe_entrenamiento/distribucion_clases.csv).
 
@@ -89,11 +89,11 @@ flowchart TD
 ```
 
 La arquitectura completa se encuentra en [arquitectura.txt](./informe_entrenamiento/arquitectura.txt). Las condiciones principales del entrenamiento son:
-- 80 épocas, batch de 128 y semilla fija (`SEED=42`)
+- 80 épocas, batch de 128 y semilla fija con valor 42.
 - Optimizador `AdamW` con `weight_decay=1e-4`, calentamiento lineal de 3 épocas hasta `lr=2e-3` y decaimiento coseno hasta `1e-5`
 - Suavizado de etiquetas de 0,1
-- Pesos de clase balanceados y suavizados con raíz cuadrada (`PESO_CLASE_POTENCIA=0.5`) para no desestabilizar el gradiente
-- Un 10 % estratificado del train como validación, usado para seleccionar la mejor época (parada temprana con `patience=20`, aunque no llegó a activarse)
+- Pesos de clase balanceados y suavizados con raíz cuadrada para no desestabilizar el gradiente
+- Un 10 % estratificado del train como validación, usado para seleccionar la mejor época.
 - Precisión mixta si hay GPU; el modelo final se reconstruye y exporta siempre en `float32` para inferir en CPU
 
 El flujo de entrada y salida de la red durante el entrenamiento es el siguiente:
@@ -119,7 +119,7 @@ flowchart LR
     E --> CNN --> F
 ```
 
-El entrenamiento se realizó en CPU (16 núcleos, sin GPU) con TensorFlow 2.21 / Keras 3.15 y tardó unos **60 minutos** (≈ 44 s por época). La mejor época fue la 61, con un accuracy de validación de 0,597.
+El entrenamiento se realizó en CPU (16 núcleos, sin GPU) con TensorFlow 2.21 / Keras 3.15 y tardó unos **60 minutos** alrededor de 44 segundos por época. La mejor época fue la 61, con un accuracy de validación de 0,597.
 
 ![Curvas de entrenamiento](./informe_entrenamiento/curvas_entrenamiento.png)
 
@@ -149,9 +149,9 @@ Resultados por clase en test ([informe_por_clase.csv](./informe_entrenamiento/in
 | **Global (Accuracy)** | | | **0.605** | 7396 |
 
 **Análisis:**
-- **Clases fáciles:** `duckface`, `happy` y `surprise`. Hay que tener en cuenta que `duckface` proviene de otro dominio (selfies), lo que puede inflar su resultado.
+- **Clases fáciles:** `duckface`, `happy` y `surprise`. Hay que tener en cuenta que `duckface` proviene de otro dominio, lo que puede inflar su resultado.
 - **Clases difíciles:** `fear`, `sad` y `angry`, que son además las que tienen las etiquetas más ambiguas en FER-2013. Las confusiones más frecuentes ([confusiones_top.csv](./informe_entrenamiento/confusiones_top.csv)) son `sad` → `neutral` (19,5 % de las `sad`), `sad` → `fear` (18,4 %) y `angry` → `fear` (16,3 %).
-- **Sobreajuste:** la brecha entre train (0,715) y test (0,605) es de ≈ 0,11, lo que indica un sobreajuste moderado. La pérdida de validación alcanza su mínimo en la época 63 y a partir de ahí la validación se estanca.
+- **Sobreajuste:** la brecha entre train 0,715 y test 0,605 es de alrededor de 0,11, lo que indica un sobreajuste moderado. La pérdida de validación alcanza su mínimo en la época 63 y a partir de ahí la validación se estanca.
 - **Calibración:** el error de calibración esperado (ECE) es de solo 0,022, por lo que la confianza que muestra la red se corresponde muy bien con su probabilidad real de acierto, algo útil para mostrarla en directo ([calibracion.csv](./informe_entrenamiento/calibracion.csv)).
 - **Latencia en CPU:** una cara tarda ≈ 41 ms en modo dinámico frente a ≈ 2,7 ms envolviendo la red en `tf.function`, por lo que los demostradores utilizan esta segunda opción.
 
@@ -174,18 +174,16 @@ Todos los modelos se evalúan en las mismas condiciones sobre el mismo conjunto 
 | **CNN mini-Xception** | 0.605 | 0.615 | **2.7** | **0.5** | 3581 s |
 | **CNN mini-Xception + TTA** | **0.625** | **0.636** | 5.4 | 0.5 | 3581 s |
 
-> El tiempo de entrenamiento de HOG + SVM no figura porque `registro_modelos.json` no contiene su entrada, y las salidas guardadas de [`entrenar_01`](./entrenar_01_hog_svm.ipynb) corresponden a una ejecución con la versión anterior del dataset. Conviene volver a ejecutar ese cuaderno y después la comparativa.
-
-Frente a DeepFace, sobre un subconjunto equilibrado de 600 caras sin `duckface`, la CNN propia obtiene una accuracy de 0.587 (0.597 con TTA) frente al 0.563 de DeepFace, siendo además unas 5 veces más rápida por cara.
+Frente a DeepFace, sobre un subconjunto equilibrado de 600 caras sin `duckface`, la CNN propia obtiene una accuracy de 0.587 frente al 0.563 de DeepFace, siendo además unas 5 veces más rápida por cara.
 
 Para el prototipo en tiempo real se elige por tanto la **CNN propia**, que es a la vez la más precisa, la más rápida y la más ligera. El demostrador la usa sin TTA (≈ 2,7 ms por cara); el TTA (F1 0,636 a ≈ 5,4 ms) queda como mejora opcional.
 
-La explicación de cada uno de los datos comparativos (métricas globales, F1 por clase, matrices de confusión, latencias, tamaños y comparación con DeepFace), junto a sus gráficas, se encuentra en [`conclusiones_comparativas.md`](./conclusiones_comparativas.md).
+La explicación de cada uno de los datos comparativos, junto a sus gráficas, se encuentra en [`conclusiones_comparativas.md`](./conclusiones_comparativas.md).
 
 ------
 
 ## Demostradores en tiempo real
-Ambos demostradores usan el detector de caras DNN de OpenCV (ResNet10-SSD) y se controlan por teclado. La cámara se lee en un hilo aparte (`Camara`) para que el bucle procese siempre el último fotograma.
+Ambos demostradores usan el detector de caras DNN de OpenCV (ResNet10-SSD) y se controlan por teclado. La cámara se lee en un hilo aparte para que el bucle procese siempre el último fotograma.
 
 ### [Emociones políticas](./emociones_políticas.ipynb)
 La persona se pone delante de la cámara, elige un partido político (PSOE, PP, Vox o Frente Amplio) y, según la expresión que haga, aparece sobre su cabeza una imagen que hace referencia a dicho partido y emoción. Las imágenes están en [`emotion-images`](./emotion-images) (una carpeta por partido con una imagen por emoción) y los logotipos del selector en [`logos-partidos`](./logos-partidos).
@@ -221,7 +219,7 @@ flowchart LR
     F --> CNN --> G
 ```
 
-Con la tecla `m` se puede cambiar en directo entre la **CNN propia**, un **modelo clásico** y **DeepFace** (este último en un hilo aparte por su latencia), mostrando en pantalla el modelo activo y su tiempo por cara. Todos comparten la misma interfaz `probs(cara_gris)`.
+Con la tecla `m` se puede cambiar en directo entre la **CNN propia**, un **modelo clásico** y **DeepFace**, mostrando en pantalla el modelo activo y su tiempo por cara. Todos comparten la misma interfaz `probs(cara_gris)`.
 
 **Teclas:** `n`/`b` partido siguiente/anterior · `m` cambiar modelo · `l` mostrar landmarks · `f` pantalla completa · `Esc` salir.
 
@@ -241,8 +239,8 @@ Para que la medición se vea fluida, los análisis pesados se lanzan en hilos in
 ------
 
 ## Archivos necesarios
-- `dataset/` — carpetas `train` y `test` con una subcarpeta por emoción, más `Selfie-dataset.tar.gz` (hay que descomprimirlo en `dataset/` antes de ejecutar `preparar_dataset.ipynb`). El FER-2013 se obtiene de Kaggle.
-- `modelos/` — modelos entrenados (`.joblib` y `cnn.keras`) y modelos preentrenados necesarios para los demostradores: `deploy.prototxt.txt` y `res10_300x300_ssd_iter_140000.caffemodel` (detector de caras), `face_landmarker.task` (landmarks, se descarga automáticamente si no existe) y `selfie_multiclass_256x256.tflite` (segmentación, también se descarga automáticamente).
+- `dataset/` — carpetas `train` y `test` con una subcarpeta por emoción.
+- `modelos/` — modelos entrenados (`.joblib` y `cnn.keras`) y modelos preentrenados necesarios para los demostradores: `deploy.prototxt.txt` y `res10_300x300_ssd_iter_140000.caffemodel`, `face_landmarker.task` y `selfie_multiclass_256x256.tflite` (segmentación, también se descarga automáticamente).
 - `emotion-images/`, `logos-partidos/`, `banderas/` y `paises.csv` — recursos de los demostradores.
 
 ------

@@ -118,25 +118,25 @@ El código se reparte en varios cuadernos Jupyter (preparación del dataset, un 
 Estructura de la carpeta
 ```
 P5
-|- banderas/                         #Banderas de los países (caché del selector)
-|- dataset/                          #Dataset de emociones (train/test) y Selfie-dataset
-|- emotion-images/                   #Imágenes de reacción por partido y emoción
-|- informe_entrenamiento/            #Gráficas, tablas y resúmenes del entrenamiento y la comparativa
-|- logos-partidos/                   #Logotipos del selector de partidos
-|- modelos/                          #Modelos entrenados y modelos preentrenados
-|- comparativa.ipynb                 #Comparativa de todos los modelos y frente a DeepFace
-|- conclusiones_comparativas.md      #Explicación de los datos de la comparativa
-|- comun.py                          #Funciones comunes a todos los cuadernos
-|- emociones_políticas.ipynb         #Demostrador de reacciones políticas
-|- entrenar_01_hog_svm.ipynb         #Entrenamiento HOG + SVM
-|- entrenar_02_lbp_svm.ipynb         #Entrenamiento LBP + SVM
-|- entrenar_03_hoglbp_pca_svm.ipynb  #Entrenamiento HOG + LBP + PCA + SVM
-|- entrenar_04_autocaras_pca_svm.ipynb #Entrenamiento autocaras (PCA) + SVM
-|- entrenar_05_hog_pca_knn.ipynb     #Entrenamiento HOG + PCA + KNN
-|- entrenar_06_cnn.ipynb             #Entrenamiento de la CNN propia
-|- filtro_derechos.ipynb             #Demostrador del filtro de derechos
-|- paises.csv                        #Factores por país del filtro de derechos
-|- preparar_dataset.ipynb            #Preparación de la clase duckface
+|- banderas/                         # Banderas de los países
+|- dataset/                          # Dataset de emociones y Selfie-dataset
+|- emotion-images/                   # Imágenes de reacción por partido y emoción
+|- informe_entrenamiento/            # Gráficas, tablas y resúmenes del entrenamiento y la comparativa
+|- logos-partidos/                  
+|- modelos/                          # Modelos entrenados y modelos preentrenados
+|- comparativa.ipynb                 # Comparativa de todos los modelos y frente a DeepFace
+|- conclusiones_comparativas.md      # Explicación de los datos de la comparativa
+|- comun.py                          # Funciones comunes
+|- emociones_políticas.ipynb         # Filtro de reacciones políticas
+|- entrenar_01_hog_svm.ipynb         # Entrenamiento HOG + SVM
+|- entrenar_02_lbp_svm.ipynb         # Entrenamiento LBP + SVM
+|- entrenar_03_hoglbp_pca_svm.ipynb  # Entrenamiento HOG + LBP + PCA + SVM
+|- entrenar_04_autocaras_pca_svm.ipynb # Entrenamiento autocaras PCA + SVM
+|- entrenar_05_hog_pca_knn.ipynb     # Entrenamiento HOG + PCA + KNN
+|- entrenar_06_cnn.ipynb             # Entrenamiento de la CNN propia
+|- filtro_derechos.ipynb             # Filtro de derechos
+|- paises.csv                        # Factores por país
+|- preparar_dataset.ipynb            # Preparación del dataset para la clase duckface
 |- README.md
-|- selector.py                       #Selector lateral de imágenes
+|- selector.py                       # Selector lateral de imágenes
 ```

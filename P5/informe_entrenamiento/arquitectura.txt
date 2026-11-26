@@ -1,150 +1,150 @@
-Model: "functional"
+Model: "functional_1"
 ┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━┓
 ┃ Layer (type)        ┃ Output Shape      ┃    Param # ┃ Connected to      ┃
 ┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━┩
-│ input_layer         │ (None, 48, 48, 1) │          0 │ -                 │
+│ input_layer_1       │ (None, 48, 48, 1) │          0 │ -                 │
 │ (InputLayer)        │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ random_flip         │ (None, 48, 48, 1) │          0 │ input_layer[0][0] │
+│ random_flip_1       │ (None, 48, 48, 1) │          0 │ input_layer_1[0]… │
 │ (RandomFlip)        │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ random_rotation     │ (None, 48, 48, 1) │          0 │ random_flip[0][0] │
+│ random_rotation_1   │ (None, 48, 48, 1) │          0 │ random_flip_1[0]… │
 │ (RandomRotation)    │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ random_zoom         │ (None, 48, 48, 1) │          0 │ random_rotation[… │
+│ random_zoom_1       │ (None, 48, 48, 1) │          0 │ random_rotation_… │
 │ (RandomZoom)        │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ random_translation  │ (None, 48, 48, 1) │          0 │ random_zoom[0][0] │
+│ random_translation… │ (None, 48, 48, 1) │          0 │ random_zoom_1[0]… │
 │ (RandomTranslation) │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d (Conv2D)     │ (None, 46, 46, 8) │         72 │ random_translati… │
+│ conv2d_7 (Conv2D)   │ (None, 46, 46, 8) │         72 │ random_translati… │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ batch_normalization │ (None, 46, 46, 8) │         32 │ conv2d[0][0]      │
+│ batch_normalizatio… │ (None, 46, 46, 8) │         32 │ conv2d_7[0][0]    │
 │ (BatchNormalizatio… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation          │ (None, 46, 46, 8) │          0 │ batch_normalizat… │
+│ activation_7        │ (None, 46, 46, 8) │          0 │ batch_normalizat… │
 │ (Activation)        │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d_1 (Conv2D)   │ (None, 44, 44, 8) │        576 │ activation[0][0]  │
+│ conv2d_8 (Conv2D)   │ (None, 44, 44, 8) │        576 │ activation_7[0][… │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ batch_normalizatio… │ (None, 44, 44, 8) │         32 │ conv2d_1[0][0]    │
+│ batch_normalizatio… │ (None, 44, 44, 8) │         32 │ conv2d_8[0][0]    │
 │ (BatchNormalizatio… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation_1        │ (None, 44, 44, 8) │          0 │ batch_normalizat… │
+│ activation_8        │ (None, 44, 44, 8) │          0 │ batch_normalizat… │
 │ (Activation)        │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d    │ (None, 44, 44,    │        200 │ activation_1[0][… │
+│ separable_conv2d_8  │ (None, 44, 44,    │        200 │ activation_8[0][… │
 │ (SeparableConv2D)   │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 44, 44,    │         64 │ separable_conv2d… │
 │ (BatchNormalizatio… │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation_2        │ (None, 44, 44,    │          0 │ batch_normalizat… │
+│ activation_9        │ (None, 44, 44,    │          0 │ batch_normalizat… │
 │ (Activation)        │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_1  │ (None, 44, 44,    │        400 │ activation_2[0][… │
+│ separable_conv2d_9  │ (None, 44, 44,    │        400 │ activation_9[0][… │
 │ (SeparableConv2D)   │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 44, 44,    │         64 │ separable_conv2d… │
 │ (BatchNormalizatio… │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d_2 (Conv2D)   │ (None, 22, 22,    │        128 │ activation_1[0][… │
+│ conv2d_9 (Conv2D)   │ (None, 22, 22,    │        128 │ activation_8[0][… │
 │                     │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ max_pooling2d       │ (None, 22, 22,    │          0 │ batch_normalizat… │
+│ max_pooling2d_4     │ (None, 22, 22,    │          0 │ batch_normalizat… │
 │ (MaxPooling2D)      │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ batch_normalizatio… │ (None, 22, 22,    │         64 │ conv2d_2[0][0]    │
+│ batch_normalizatio… │ (None, 22, 22,    │         64 │ conv2d_9[0][0]    │
 │ (BatchNormalizatio… │ 16)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ add (Add)           │ (None, 22, 22,    │          0 │ max_pooling2d[0]… │
+│ add_4 (Add)         │ (None, 22, 22,    │          0 │ max_pooling2d_4[… │
 │                     │ 16)               │            │ batch_normalizat… │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_2  │ (None, 22, 22,    │        656 │ add[0][0]         │
+│ separable_conv2d_10 │ (None, 22, 22,    │        656 │ add_4[0][0]       │
 │ (SeparableConv2D)   │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 22, 22,    │        128 │ separable_conv2d… │
 │ (BatchNormalizatio… │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation_3        │ (None, 22, 22,    │          0 │ batch_normalizat… │
+│ activation_10       │ (None, 22, 22,    │          0 │ batch_normalizat… │
 │ (Activation)        │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_3  │ (None, 22, 22,    │      1,312 │ activation_3[0][… │
+│ separable_conv2d_11 │ (None, 22, 22,    │      1,312 │ activation_10[0]… │
 │ (SeparableConv2D)   │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 22, 22,    │        128 │ separable_conv2d… │
 │ (BatchNormalizatio… │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d_3 (Conv2D)   │ (None, 11, 11,    │        512 │ add[0][0]         │
+│ conv2d_10 (Conv2D)  │ (None, 11, 11,    │        512 │ add_4[0][0]       │
 │                     │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ max_pooling2d_1     │ (None, 11, 11,    │          0 │ batch_normalizat… │
+│ max_pooling2d_5     │ (None, 11, 11,    │          0 │ batch_normalizat… │
 │ (MaxPooling2D)      │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ batch_normalizatio… │ (None, 11, 11,    │        128 │ conv2d_3[0][0]    │
+│ batch_normalizatio… │ (None, 11, 11,    │        128 │ conv2d_10[0][0]   │
 │ (BatchNormalizatio… │ 32)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ add_1 (Add)         │ (None, 11, 11,    │          0 │ max_pooling2d_1[… │
+│ add_5 (Add)         │ (None, 11, 11,    │          0 │ max_pooling2d_5[… │
 │                     │ 32)               │            │ batch_normalizat… │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_4  │ (None, 11, 11,    │      3,360 │ add_1[0][0]       │
+│ separable_conv2d_12 │ (None, 11, 11,    │      3,360 │ add_5[0][0]       │
 │ (SeparableConv2D)   │ 96)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 11, 11,    │        384 │ separable_conv2d… │
 │ (BatchNormalizatio… │ 96)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation_4        │ (None, 11, 11,    │          0 │ batch_normalizat… │
+│ activation_11       │ (None, 11, 11,    │          0 │ batch_normalizat… │
 │ (Activation)        │ 96)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_5  │ (None, 11, 11,    │     10,080 │ activation_4[0][… │
+│ separable_conv2d_13 │ (None, 11, 11,    │     10,080 │ activation_11[0]… │
 │ (SeparableConv2D)   │ 96)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 11, 11,    │        384 │ separable_conv2d… │
 │ (BatchNormalizatio… │ 96)               │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d_4 (Conv2D)   │ (None, 6, 6, 96)  │      3,072 │ add_1[0][0]       │
+│ conv2d_11 (Conv2D)  │ (None, 6, 6, 96)  │      3,072 │ add_5[0][0]       │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ max_pooling2d_2     │ (None, 6, 6, 96)  │          0 │ batch_normalizat… │
+│ max_pooling2d_6     │ (None, 6, 6, 96)  │          0 │ batch_normalizat… │
 │ (MaxPooling2D)      │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ batch_normalizatio… │ (None, 6, 6, 96)  │        384 │ conv2d_4[0][0]    │
+│ batch_normalizatio… │ (None, 6, 6, 96)  │        384 │ conv2d_11[0][0]   │
 │ (BatchNormalizatio… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ add_2 (Add)         │ (None, 6, 6, 96)  │          0 │ max_pooling2d_2[… │
+│ add_6 (Add)         │ (None, 6, 6, 96)  │          0 │ max_pooling2d_6[… │
 │                     │                   │            │ batch_normalizat… │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_6  │ (None, 6, 6, 160) │     16,224 │ add_2[0][0]       │
+│ separable_conv2d_14 │ (None, 6, 6, 160) │     16,224 │ add_6[0][0]       │
 │ (SeparableConv2D)   │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 6, 6, 160) │        640 │ separable_conv2d… │
 │ (BatchNormalizatio… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation_5        │ (None, 6, 6, 160) │          0 │ batch_normalizat… │
+│ activation_12       │ (None, 6, 6, 160) │          0 │ batch_normalizat… │
 │ (Activation)        │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ separable_conv2d_7  │ (None, 6, 6, 160) │     27,040 │ activation_5[0][… │
+│ separable_conv2d_15 │ (None, 6, 6, 160) │     27,040 │ activation_12[0]… │
 │ (SeparableConv2D)   │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
 │ batch_normalizatio… │ (None, 6, 6, 160) │        640 │ separable_conv2d… │
 │ (BatchNormalizatio… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d_5 (Conv2D)   │ (None, 3, 3, 160) │     15,360 │ add_2[0][0]       │
+│ conv2d_12 (Conv2D)  │ (None, 3, 3, 160) │     15,360 │ add_6[0][0]       │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ max_pooling2d_3     │ (None, 3, 3, 160) │          0 │ batch_normalizat… │
+│ max_pooling2d_7     │ (None, 3, 3, 160) │          0 │ batch_normalizat… │
 │ (MaxPooling2D)      │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ batch_normalizatio… │ (None, 3, 3, 160) │        640 │ conv2d_5[0][0]    │
+│ batch_normalizatio… │ (None, 3, 3, 160) │        640 │ conv2d_12[0][0]   │
 │ (BatchNormalizatio… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ add_3 (Add)         │ (None, 3, 3, 160) │          0 │ max_pooling2d_3[… │
+│ add_7 (Add)         │ (None, 3, 3, 160) │          0 │ max_pooling2d_7[… │
 │                     │                   │            │ batch_normalizat… │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ conv2d_6 (Conv2D)   │ (None, 3, 3, 7)   │     10,087 │ add_3[0][0]       │
+│ conv2d_13 (Conv2D)  │ (None, 3, 3, 7)   │     10,087 │ add_7[0][0]       │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ global_average_poo… │ (None, 7)         │          0 │ conv2d_6[0][0]    │
+│ global_average_poo… │ (None, 7)         │          0 │ conv2d_13[0][0]   │
 │ (GlobalAveragePool… │                   │            │                   │
 ├─────────────────────┼───────────────────┼────────────┼───────────────────┤
-│ activation_6        │ (None, 7)         │          0 │ global_average_p… │
+│ activation_13       │ (None, 7)         │          0 │ global_average_p… │
 │ (Activation)        │                   │            │                   │
 └─────────────────────┴───────────────────┴────────────┴───────────────────┘
  Total params: 92,791 (362.46 KB)

@@ -223,6 +223,12 @@ Con la tecla `m` se puede cambiar en directo entre la **CNN propia**, un **model
 
 **Teclas:** `n`/`b` partido siguiente/anterior · `m` cambiar modelo · `l` mostrar landmarks · `f` pantalla completa · `Esc` salir.
 
+**Demostración**
+
+![Demostración de emociones políticas](./emociones_políticas.gif)
+
+> **Aviso sobre la demostración.** Todas las imágenes de los políticos que aparecen están generadas con IA y se usan con un tono puramente satírico, sin intención de ofender a ninguna persona ni partido. En el GIF solo se utiliza la **CNN creada por nosotros** para este proyecto, pero durante la ejecución del programa se puede cambiar entre los distintos modelos (CNN propia, modelo clásico y DeepFace) pulsando la tecla `m`.
+
 ### [Filtro de derechos](./filtro_derechos.ipynb)
 Filtro con tono **humorístico y satírico** (las estimaciones no son mediciones reales ni pretenden ofender a ningún colectivo). Detecta la cara de la persona, estima su **género**, su **tono de piel** y si lleva el **pelo visible o cubierto**, y a partir de ellos calcula un porcentaje de "derechos" según el país seleccionado.
 
@@ -231,6 +237,40 @@ Filtro con tono **humorístico y satírico** (las estimaciones no son mediciones
 - **Tono de piel:** se calcula el **ITA** sobre los píxeles de piel en espacio Lab y se clasifica en claro, intermedio u oscuro con histéresis. Solo se fía de la medida con buena luz (se descartan imágenes oscuras, quemadas o con luz lateral).
 - **Pelo:** se decide si está visible, parcial, cubierto o no hay pelo mirando la corona y los laterales de la cabeza, y se clasifica su color.
 - **Métrica:** `calcular_derechos` combina un factor por género (`W_G=0.4`), por tono de piel respecto al mayoritario del país (`W_S=0.4`) y por pelo, que solo penaliza en países con regla de cubrir el pelo (`W_P=0.2`). Los factores de cada país están en [paises.csv](./paises.csv) y sus banderas, descargadas automáticamente, en [`banderas`](./banderas).
+
+El flujo del filtro, desde el frame de la webcam hasta el porcentaje mostrado, es el siguiente:
+
+```mermaid
+flowchart TD
+    A["Frame webcam (BGR)"] --> B["Detector DNN<br/>cara más grande · caja suavizada<br/>si cambia la persona → reiniciar votos"]
+
+    B --> G1
+    B --> P1
+
+    subgraph HG["Hilo de género"]
+        direction TB
+        G1["Recorte de la cara<br/>+25 % de margen"] --> G2["DeepFace · género"]
+        G2 --> G3["Media de los últimos 5 votos<br/>P(mujer) > 0,30 → mujer"]
+    end
+
+    subgraph HP["Hilo de pelo y piel"]
+        direction TB
+        P1["Recorte de la cabeza<br/>con margen para el pelo"] --> MP[["MediaPipe Image Segmenter<br/>máscara: pelo · piel · accesorios"]]
+        MP --> S1["Piel → Lab → ITA<br/>solo si la luz es buena"]
+        S1 --> S2["Mediana del ITA → claro / intermedio / oscuro<br/>con histéresis"]
+        MP --> H1["Corona y laterales<br/>visible / parcial / cubierto / sin pelo"]
+        H1 --> H2["Moda de los últimos 5 votos"]
+    end
+
+    PA["País seleccionado<br/>factores de paises.csv"] --> M
+    G3 --> M
+    S2 --> M
+    H2 --> M
+    M["calcular_derechos<br/>100 · (0,4·f_género + 0,4·f_tono + 0,2·f_pelo)"]
+    M --> E{"¿Tecla E?"}
+    E -- Sí --> AN["Animación de 4 s"]
+    AN --> W["Barra con el % fijado<br/>sobre la cabeza"]
+```
 
 Para que la medición se vea fluida, los análisis pesados se lanzan en hilos independientes con intervalos mínimos, y al pulsar `e` se muestra una animación de 4 segundos hasta fijar el porcentaje.
 

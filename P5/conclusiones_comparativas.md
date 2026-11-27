@@ -1,4 +1,4 @@
-# Conclusiones de la comparativa · Práctica 5
+# Conclusiones de la comparativa
 
 En este documento se explican de forma breve los distintos datos comparativos extraídos en el cuaderno [`comparativa.ipynb`](./comparativa.ipynb). Todos los archivos citados se encuentran en el directorio [`informe_entrenamiento`](./informe_entrenamiento).
 

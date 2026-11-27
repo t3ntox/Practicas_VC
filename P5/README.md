@@ -153,7 +153,7 @@ Resultados por clase en test ([informe_por_clase.csv](./informe_entrenamiento/in
 - **Clases difíciles:** `fear`, `sad` y `angry`, que son además las que tienen las etiquetas más ambiguas en FER-2013. Las confusiones más frecuentes ([confusiones_top.csv](./informe_entrenamiento/confusiones_top.csv)) son `sad` → `neutral` (19,5 % de las `sad`), `sad` → `fear` (18,4 %) y `angry` → `fear` (16,3 %).
 - **Sobreajuste:** la brecha entre train 0,715 y test 0,605 es de alrededor de 0,11, lo que indica un sobreajuste moderado. La pérdida de validación alcanza su mínimo en la época 63 y a partir de ahí la validación se estanca.
 - **Calibración:** el error de calibración esperado (ECE) es de solo 0,022, por lo que la confianza que muestra la red se corresponde muy bien con su probabilidad real de acierto, algo útil para mostrarla en directo ([calibracion.csv](./informe_entrenamiento/calibracion.csv)).
-- **Latencia en CPU:** una cara tarda ≈ 41 ms en modo dinámico frente a ≈ 2,7 ms envolviendo la red en `tf.function`, por lo que los demostradores utilizan esta segunda opción.
+- **Latencia en CPU:** una cara tarda ≈ 41 ms en modo dinámico frente a ≈ 2,7 ms envolviendo la red en `tf.function`, por lo que los demostradores utilizan esta segunda opción. Esta cifra procede de la ejecución del cuaderno de entrenamiento; en la [comparativa](./comparativa.ipynb), medida con el mismo método para todos los modelos (mediana sobre 200 caras del test), la latencia es de ≈ 3,2 ms, que es el valor que se usa en el resto del documento.
 
 ![Matriz de confusión](./informe_entrenamiento/matriz_confusion.png)
 

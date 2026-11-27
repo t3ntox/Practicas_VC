@@ -103,11 +103,11 @@ Recogido en las columnas `tamaño_MB`, `entrenamiento_s` y `parametros` de [comp
 ------
 
 ## 6. Calidad frente a velocidad
-Recogido en [comparativa_modelos.png](./informe_entrenamiento/comparativa_modelos.png). La gráfica de la izquierda muestra el F1 macro (relleno) y la accuracy (contorno) de cada modelo; la de la derecha, el F1 macro frente a la latencia por cara en escala logarítmica, con el tamaño del punto proporcional al tamaño del modelo.
+Recogido en [comparativa_modelos.png](./informe_entrenamiento/comparativa_modelos.png). La gráfica de la izquierda muestra el F1 macro (relleno) y la accuracy (contorno) de cada modelo; la de la derecha, el F1 macro frente a la latencia por cara en escala logarítmica, con el tamaño del punto creciendo junto al tamaño del modelo.
 
 ![Comparativa de modelos](./informe_entrenamiento/comparativa_modelos.png)
 
-Los modelos forman tres grupos. Arriba a la izquierda, la CNN (sola y con TTA) que, para nuestra sorpresa, es a la vez la más precisa, la más rápida y la más ligera. Abajo a la izquierda, los clásicos con PCA de pocas componentes (autocaras y KNN), rápidos y ligeros pero con un F1 en torno a 0,50. A la derecha, las SVM sobre HOG y LBP, las más lentas y pesadas; entre ellas, las que usan HOG son las únicas que se acercan a la CNN en calidad.
+Los modelos forman tres grupos. Arriba a la izquierda, la CNN que, para nuestra sorpresa, es a la vez la más rápida, la más ligera y, sin tener en cuenta su versión con TTA, la más precisa. En la zona central y baja, los clásicos con PCA de pocas componentes (autocaras y KNN), rápidos y ligeros pero con un F1 en torno a 0,50. A la derecha, las SVM sobre HOG y LBP, las más lentas y pesadas; entre ellas, las que usan HOG son las únicas que se acercan a la CNN en calidad, mientras que LBP + SVM es el peor modelo de la comparativa.
 
 ------
 

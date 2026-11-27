@@ -28,7 +28,7 @@ El dataset contiene **30.241 imágenes de entrenamiento y 7.396 de test**, en es
 
 Las decisiones tomadas en [`preparar_dataset.ipynb`](./preparar_dataset.ipynb) son:
 - **`disgust` eliminada**: en FER-2013 solo cuenta con el 1,4 % de las imágenes de train y su mezcla con `angry` empeoraba ambas clases.
-- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para trabajar en igualdad de condiciones), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además, debido a los defectos de anotación, hemos realizado una limpieza manual de las imágenes.
+- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duckface`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para trabajar en igualdad de condiciones), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además, debido a los defectos de anotación, hemos realizado una limpieza manual de las imágenes.
 - **Roboflow como fuente adicional**: para ampliar la clase `duckface` se añaden también las caras del proyecto `middle-tongue-duckface` de Roboflow, convertidas al mismo formato que el resto del dataset.
 - **Sesgo de dominio conocido**: todas las imágenes de `duckface` proceden de selfies de móvil y de Roboflow, mientras que el resto proviene de FER-2013, por lo que parte de su resultado puede deberse al dominio y no solo a la expresión.
 

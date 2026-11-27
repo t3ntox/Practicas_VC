@@ -113,7 +113,7 @@ P4
 
 En esta quinta práctica se construye un modelo biométrico propio capaz de reconocer 7 expresiones faciales (`angry`, `duckface`, `fear`, `happy`, `neutral`, `sad` y `surprise`). Para ello se entrenan cinco clasificadores clásicos (HOG, LBP y autocaras con SVM o KNN) y una red convolucional propia tipo mini-Xception, que se comparan entre sí y con DeepFace. El modelo elegido, la CNN, se aplica después en dos demostradores en tiempo real con webcam: reacciones de partidos políticos según la emoción y un filtro satírico de "derechos" por país.
 
-El código se reparte en varios cuadernos Jupyter (preparación del dataset, un cuaderno por modelo, la comparativa y los dos demostradores) que comparten las funciones del script `comun.py`. Se incluye en la carpeta de esta práctica un [README](https://github.com/t3ntox/Practicas_VC/tree/main/P5/README.md) donde se desarrolla el dataset, el entrenamiento y los resultados de cada modelo, la comparativa y el funcionamiento de los demostradores, junto con los diagramas de flujo de la CNN.
+El código se reparte en varios cuadernos Jupyter (preparación del dataset, un cuaderno por modelo, la comparativa y los dos demostradores) que comparten las funciones del script `comun.py`. Se incluye en la carpeta de esta práctica un [README](https://github.com/t3ntox/Practicas_VC/tree/main/P5/README.md) donde se desarrolla el dataset, el entrenamiento y los resultados de cada modelo, la comparativa y el funcionamiento de los demostradores, junto con los diagramas de flujo de los entrenamientos y ambos demostradores.
 
 Estructura de la carpeta
 ```

@@ -285,7 +285,7 @@ Para que la medición se vea fluida, los análisis pesados se lanzan en hilos in
 ------
 
 ## Archivos necesarios
-- `dataset/` — carpetas `train` y `test` con una subcarpeta por emoción. El dataset se puede descargar en el siguiente enlace: [dataset_híbrido](https://drive.google.com/file/d/1S98o4p5d6WqbIV5oVBFjTekvbSdwCoT0/view?usp=sharing)
+- `dataset/` — carpetas `train` y `test` con una subcarpeta por emoción. El dataset se puede descargar en el siguiente enlace: [dataset_híbrido](https://drive.google.com/file/d/1_xMIMrkZLEWVX_1cXN12cyinovJFpLoc/view?usp=sharing)
 - `modelos/` — modelos entrenados (`.joblib` y `cnn.keras`) y modelos preentrenados necesarios para los demostradores: `deploy.prototxt.txt` y `res10_300x300_ssd_iter_140000.caffemodel`, `face_landmarker.task` y `selfie_multiclass_256x256.tflite` (segmentación, también se descarga automáticamente).
 - `emotion-images/`, `logos-partidos/`, `banderas/` y `paises.csv` — recursos de los demostradores.
 

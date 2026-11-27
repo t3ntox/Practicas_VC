@@ -1,6 +1,6 @@
 # Práctica 5
 
-En este directorio del repositorio encontrarán múltiples cuadernos jupyter, cada uno destinado a una serie de tareas concretas. El objetivo de la práctica es construir un **modelo biométrico propio** capaz de reconocer 7 expresiones faciales (`angry`, `duckface`, `fear`, `happy`, `neutral`, `sad` y `surprise`), compararlo con alternativas clásicas y con DeepFace; y por otro lado, hacer uso de DeepFace para el reconocimiento de distintas características a partir de un rostro (`género`, `edad`, `etnia` y `color de pelo` ). Los distintos archivos son:
+En este directorio del repositorio encontrarán múltiples cuadernos jupyter, cada uno destinado a una serie de tareas concretas. El objetivo de la práctica es construir un **modelo biométrico propio** capaz de reconocer 7 expresiones faciales (`angry`, `duckface`, `fear`, `happy`, `neutral`, `sad` y `surprise`), compararlo con alternativas clásicas y con DeepFace; y por otro lado, hacer uso de DeepFace para el reconocimiento de distintas características a partir de un rostro (`género`, `edad`, `etnia` y `color de pelo`). Los distintos archivos son:
 - [`preparar_dataset.ipynb`](./preparar_dataset.ipynb) -> destinado a la construcción de la clase `duckface`, adaptado al formato FER-2013, a partir del Selfie-dataset y de Roboflow y al recuento final por clase.
 - [`entrenar_01_hog_svm.ipynb`](./entrenar_01_hog_svm.ipynb), [`entrenar_02_lbp_svm.ipynb`](./entrenar_02_lbp_svm.ipynb), [`entrenar_03_hoglbp_pca_svm.ipynb`](./entrenar_03_hoglbp_pca_svm.ipynb), [`entrenar_04_autocaras_pca_svm.ipynb`](./entrenar_04_autocaras_pca_svm.ipynb), [`entrenar_05_hog_pca_knn.ipynb`](./entrenar_05_hog_pca_knn.ipynb) -> destinados al entrenamiento y evaluación de los cinco clasificadores clásicos.
 - [`entrenar_06_cnn.ipynb`](./entrenar_06_cnn.ipynb) -> destinado al entrenamiento de la red convolucional propia (tipo mini-Xception) junto a las gráficas y tablas del [informe de entrenamiento](./informe_entrenamiento).
@@ -26,9 +26,9 @@ El dataset contiene **30.241 imágenes de entrenamiento y 7.396 de test**, en es
 | [Selfie-dataset (columna `duck_face`)](https://www.crcv.ucf.edu/research/data-sets/selfie/) | duckface | fotos de móvil en color, recortadas con el detector DNN |
 | [Roboflow (`middle-tongue-duckface`)](https://universe.roboflow.com/merge-j4uow/middle-tongue-duckface) | duckface | caras convertidas al formato FER |
 
-Las decisiones tomadas en [`preparar_dataset.ipynb`](./preparar_dataset.ipynb), son:
+Las decisiones tomadas en [`preparar_dataset.ipynb`](./preparar_dataset.ipynb) son:
 - **`disgust` eliminada**: en FER-2013 solo cuenta con el 1,4 % de las imágenes de train y su mezcla con `angry` empeoraba ambas clases.
-- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para trabajar en igualdad de condiciones), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además debido a los defectos de anotación, hemos debido hacer una limpieza a mano de determinadas imagenes.
+- **`duckface` creada por nosotros**: de los 46.836 selfies del Selfie-dataset se toman los marcados como `duck_face`, se detecta la cara con el DNN (ResNet10-SSD), se recorta con `recortar_cara` (la misma función que se usa en la webcam, para trabajar en igualdad de condiciones), se pasa a gris y se reduce a 48x48. Se reparte un 80 % para train y un 20 % para test con semilla fija. Además, debido a los defectos de anotación, hemos realizado una limpieza manual de las imágenes.
 - **Roboflow como fuente adicional**: para ampliar la clase `duckface` se añaden también las caras del proyecto `middle-tongue-duckface` de Roboflow, convertidas al mismo formato que el resto del dataset.
 - **Sesgo de dominio conocido**: todas las imágenes de `duckface` proceden de selfies de móvil y de Roboflow, mientras que el resto proviene de FER-2013, por lo que parte de su resultado puede deberse al dominio y no solo a la expresión.
 
@@ -90,11 +90,11 @@ flowchart TD
 
 La arquitectura completa se encuentra en [arquitectura.txt](./informe_entrenamiento/arquitectura.txt). Las condiciones principales del entrenamiento son:
 - 80 épocas, batch de 128 y semilla fija con valor 42.
-- Optimizador `AdamW` con `weight_decay=1e-4`, calentamiento lineal de 3 épocas hasta `lr=2e-3` y decaimiento coseno hasta `1e-5`
-- Suavizado de etiquetas de 0,1
+- Optimizador `AdamW` con `weight_decay=1e-4`, calentamiento lineal de 3 épocas hasta `lr=2e-3` y decaimiento coseno hasta `1e-5`.
+- Suavizado de etiquetas de 0,1.
 - Pesos de clase balanceados y suavizados con raíz cuadrada para no desestabilizar el gradiente
 - Un 10 % estratificado del train como validación, usado para seleccionar la mejor época.
-- Precisión mixta si hay GPU; el modelo final se reconstruye y exporta siempre en `float32` para inferir en CPU
+- Precisión mixta si hay GPU; el modelo final se reconstruye y exporta siempre en `float32` para inferir en CPU.
 
 El flujo de entrada y salida de la red durante el entrenamiento es el siguiente:
 
@@ -137,7 +137,7 @@ El TTA (*test-time augmentation*) consiste en promediar la predicción de la car
 
 Resultados por clase en test ([informe_por_clase.csv](./informe_entrenamiento/informe_por_clase.csv)):
 
-| Clase | Precision | Recall | F1-Score | Soporte |
+| Clase | Precisión | Recall | F1-Score | Soporte |
 | :---: | :-------: | :----: | :------: | :-----: |
 | **angry** | 0.551 | 0.458 | 0.500 | 958 |
 | **duckface** | 0.928 | 0.860 | 0.893 | 329 |
@@ -166,17 +166,17 @@ Todos los modelos se evalúan en las mismas condiciones sobre el mismo conjunto 
 
 | Modelo | Accuracy | F1 macro | ms / cara | Tamaño (MB) | Entrenamiento |
 | :----- | :------: | :------: | :-------: | :---------: | :-----------: |
-| HOG + SVM | 0.560 | 0.564 | 32.5 | 389.3 | - |
-| LBP + SVM | 0.438 | 0.448 | 17.6 | 147.8 | 1598 s |
-| HOG + LBP + PCA + SVM | 0.567 | 0.576 | 31.0 | 214.7 | 1372 s |
-| Autocaras (PCA) + SVM | 0.504 | 0.516 | 4.6 | 36.1 | 274 s |
-| HOG + PCA + KNN | 0.499 | 0.498 | 5.1 | 12.5 | 1.8 s |
-| **CNN mini-Xception** | 0.605 | 0.615 | **2.7** | **0.5** | 3581 s |
-| **CNN mini-Xception + TTA** | **0.625** | **0.636** | 5.4 | 0.5 | 3581 s |
+| HOG + SVM | 0.560 | 0.564 | 34.7 | 389.3 | 3111 s |
+| LBP + SVM | 0.438 | 0.448 | 16.9 | 147.8 | 1598 s |
+| HOG + LBP + PCA + SVM | 0.567 | 0.576 | 23.1 | 214.7 | 1372 s |
+| Autocaras (PCA) + SVM | 0.504 | 0.516 | 4.9 | 36.1 | 274 s |
+| HOG + PCA + KNN | 0.499 | 0.498 | 8.7 | 12.5 | 1.8 s |
+| **CNN mini-Xception** | 0.605 | 0.615 | **3.2** | **0.5** | 3581 s |
+| **CNN mini-Xception + TTA** | **0.625** | **0.636** | 6.4 | 0.5 | 3581 s |
 
-Frente a DeepFace, sobre un subconjunto equilibrado de 600 caras sin `duckface`, la CNN propia obtiene una accuracy de 0.587 frente al 0.563 de DeepFace, siendo además unas 5 veces más rápida por cara.
+Frente a DeepFace, sobre un subconjunto equilibrado de 600 caras sin `duckface`, la CNN propia obtiene una accuracy de 0.587 frente al 0.563 de DeepFace, siendo además unas 4 veces más rápida por cara.
 
-Para el prototipo en tiempo real se elige por tanto la **CNN propia**, que es a la vez la más precisa, la más rápida y la más ligera. El demostrador la usa sin TTA (≈ 2,7 ms por cara); el TTA (F1 0,636 a ≈ 5,4 ms) queda como mejora opcional.
+Para el prototipo en tiempo real se elige por tanto la **CNN propia**, que es a la vez la más precisa, la más rápida y la más ligera. El demostrador la usa sin TTA (≈ 3,2 ms por cara); el TTA (F1 0,636 a ≈ 6,4 ms) queda como mejora opcional.
 
 La explicación de cada uno de los datos comparativos, junto a sus gráficas, se encuentra en [`conclusiones_comparativas.md`](./conclusiones_comparativas.md).
 
@@ -207,7 +207,7 @@ flowchart LR
         E --> F["Tensor (1, 48, 48, 1)"]
     end
 
-    CNN[["CNN mini-Xception<br/>tf.function · ≈ 2,7 ms<br/>aumento de datos inactivo"]]
+    CNN[["CNN mini-Xception<br/>tf.function · ≈ 3,2 ms<br/>aumento de datos inactivo"]]
 
     subgraph OUT["Salida"]
         direction TB

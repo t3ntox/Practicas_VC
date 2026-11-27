@@ -119,7 +119,6 @@ Estructura de la carpeta
 ```
 P5
 |- banderas/                         # Banderas de los países
-|- dataset/                          # Dataset de emociones y Selfie-dataset
 |- emotion-images/                   # Imágenes de reacción por partido y emoción
 |- informe_entrenamiento/            # Gráficas, tablas y resúmenes del entrenamiento y la comparativa
 |- logos-partidos/                  
@@ -140,4 +139,5 @@ P5
 |- README.md
 |- selector.py                       # Selector lateral de imágenes
 |- filtro_derechos.gif
+|- emociones_políticas.gif
 ```

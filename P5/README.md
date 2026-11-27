@@ -236,6 +236,12 @@ Para que la medición se vea fluida, los análisis pesados se lanzan en hilos in
 
 **Teclas:** `e` medir · `n`/`b` cambiar país · `d` mostrar/ocultar parámetros · `+`/`-` calibrar el offset del tono de piel · `f` pantalla completa · `Esc` salir.
 
+**Demostración**
+
+![Demostración del filtro de derechos](./filtro_derechos.gif)
+
+> **Nota sobre las tildes en pantalla.** Los textos que los demostradores dibujan sobre la imagen de la cámara aparecen sin tildes ni signos de apertura (`¿`) a propósito. OpenCV dibuja el texto con `cv2.putText`, que solo dispone de las fuentes vectoriales Hershey, y estas únicamente incluyen caracteres ASCII: cualquier carácter acentuado, la `ñ` o el `¿` se muestran como `??`.
+
 ------
 
 ## Archivos necesarios

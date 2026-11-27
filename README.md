@@ -139,4 +139,5 @@ P5
 |- preparar_dataset.ipynb            # Preparación del dataset para la clase duckface
 |- README.md
 |- selector.py                       # Selector lateral de imágenes
+|- filtro_derechos.gif
 ```
